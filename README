@@ -1,0 +1,47 @@
+This is the POWERPC ArchC functional model.
+
+This model has the system call emulation functions implemented,
+so it is a good idea to turn on the ABI option.
+
+To use acsim, the interpreted simulator:
+
+    acsim powerpc.ac -abi               (create the simulator)
+    make -f Makefile.archc              (compile)
+    powerpc.x --load=<file-path> [args] (run an application)
+
+To use accsim, the compiled simulator:
+
+    accsim powerpc.ac -abi <file-path>  (create specialized simulator)
+    make -f Makefile.archc              (compile)
+    powerpc.x [args]                    (run the application)
+
+The [args] are optional arguments for the application.
+
+There are two formats recognized for application <file-path>:
+- ELF binary matching ArchC specifications
+- hexadecimal text file for ArchC
+
+For more information visit http://www.archc.org
+
+
+CHANGELOG:
+==========
+
+Version 0.7.1:
+
+- Changed dprintf function (conflict with native dprintf())
+- Changed SC1 type (to include the LEV field)
+- Changed XL2 type (to include the BH field)
+
+
+Version 0.7.0:
+
+- Model passed selected Mediabench and Mibench applications
+- Included file for GDB integration
+
+
+Version 0.7.1:
+
+- Included optional properties to optimize compiled simulation
+- Although the instructions bcctrl and bclrl are out of specification, the 
+  model runs correctly selected programs

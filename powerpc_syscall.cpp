@@ -1,0 +1,93 @@
+/********************************************************/
+/* The ArchC SPARC-V8 functional model.                 */
+/* Author: Bruno Corsi dos Santos                       */
+/*                                                      */
+/* For more information on ArchC, please visit:         */
+/* http://www.archc.org                                 */
+/*                                                      */
+/* The ArchC Team                                       */
+/* Computer Systems Laboratory (LSC)                    */
+/* IC-UNICAMP                                           */
+/* http://www.lsc.ic.unicamp.br                         */
+/********************************************************/
+#include "powerpc_syscall.H"
+#include "ac_resources.H"
+
+void powerpc_syscall::get_buffer(int argn, unsigned char* buf, unsigned int size)
+{
+  unsigned int addr = GPR.read(3+argn); 
+
+  for (unsigned int i = 0; i<size; i++, addr++) {
+    buf[i] = MEM.read_byte(addr);
+  }
+}
+
+void powerpc_syscall::set_buffer(int argn, unsigned char* buf, unsigned int size)
+{
+  unsigned int addr = GPR.read(3+argn);
+
+  for (unsigned int i = 0; i<size; i++, addr++) {
+    MEM.write_byte(addr, buf[i]);
+  }
+}
+
+void powerpc_syscall::set_buffer_noinvert(int argn, unsigned char* buf, unsigned int size)
+{
+  unsigned int addr = GPR.read(3+argn);
+
+  for (unsigned int i = 0; i<size; i+=4, addr+=4) {
+    MEM.write(addr, *(unsigned int *) &buf[i]);
+  }
+}
+
+int powerpc_syscall::get_int(int argn)
+{
+  return GPR.read(3+argn);
+}
+
+void powerpc_syscall::set_int(int argn, int val)
+{
+  GPR.write(3+argn, val);
+}
+
+void powerpc_syscall::return_from_syscall()
+{
+  unsigned int oldr1;
+  unsigned int oldr31;
+  oldr1=MEM.read(GPR.read(1));
+  oldr31=MEM.read(GPR.read(1)+28);
+  GPR.write(1,oldr1);
+  GPR.write(31,oldr31);
+  ac_resources::ac_pc=LR.read();
+}
+
+void powerpc_syscall::set_prog_args(int argc, char **argv)
+{
+  extern unsigned AC_RAM_END;
+  int i, j, base;
+
+  unsigned int ac_argv[30];
+  char ac_argstr[512];
+
+  base = AC_RAM_END - 512;
+  for (i=0, j=0; i<argc; i++) {
+    int len = strlen(argv[i]) + 1;
+    ac_argv[i] = base + j;
+    memcpy(&ac_argstr[j], argv[i], len);
+    j += len;
+  }
+
+  //Write argument string
+  GPR.write(3, AC_RAM_END-512);
+  set_buffer(0, (unsigned char*) ac_argstr, 512);
+
+  //Write string pointers
+  GPR.write(3, AC_RAM_END-512-120);
+  set_buffer_noinvert(0, (unsigned char*) ac_argv, 120);
+
+  //Set r3 to the argument count
+  GPR.write(3, argc);
+
+  //Set r4 to the string pointers
+  GPR.write(4, AC_RAM_END-512-120);
+}
