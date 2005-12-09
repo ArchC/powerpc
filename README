@@ -26,22 +26,16 @@ For more information visit http://www.archc.org
 
 CHANGELOG:
 ==========
-
 Version 0.7.1:
 
+- Included optional properties to optimize compiled simulation
 - Changed dprintf function (conflict with native dprintf())
 - Changed SC1 type (to include the LEV field)
 - Changed XL2 type (to include the BH field)
+- Added assembly language information
 
 
 Version 0.7.0:
 
 - Model passed selected Mediabench and Mibench applications
 - Included file for GDB integration
-
-
-Version 0.7.1:
-
-- Included optional properties to optimize compiled simulation
-- Although the instructions bcctrl and bclrl are out of specification, the 
-  model runs correctly selected programs
