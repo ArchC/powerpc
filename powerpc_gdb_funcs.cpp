@@ -1,3 +1,23 @@
+/**
+ * @file      powerpc_gdb_funcs.cpp
+ * @author    Bruno Corsi dos Santos
+ *
+ *            The ArchC Team
+ *            http://www.archc.org/
+ *
+ *            Computer Systems Laboratory (LSC)
+ *            IC-UNICAMP
+ *            http://www.lsc.ic.unicamp.br
+ *
+ * @version   version?
+ * @date      Mon, 19 Jun 2006 15:33:28 -0300
+ * 
+ * @brief     The ArchC POWERPC functional model.
+ * 
+ * @attention Copyright (C) 2002-2006 --- The ArchC Team
+ *
+ */
+
 #include "powerpc.H"
 
 

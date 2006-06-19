@@ -1,15 +1,23 @@
-/********************************************************/
-/* The ArchC SPARC-V8 functional model.                 */
-/* Author: Bruno Corsi dos Santos                       */
-/*                                                      */
-/* For more information on ArchC, please visit:         */
-/* http://www.archc.org                                 */
-/*                                                      */
-/* The ArchC Team                                       */
-/* Computer Systems Laboratory (LSC)                    */
-/* IC-UNICAMP                                           */
-/* http://www.lsc.ic.unicamp.br                         */
-/********************************************************/
+/**
+ * @file      powerpc_syscall.cpp
+ * @author    Bruno Corsi dos Santos
+ *
+ *            The ArchC Team
+ *            http://www.archc.org/
+ *
+ *            Computer Systems Laboratory (LSC)
+ *            IC-UNICAMP
+ *            http://www.lsc.ic.unicamp.br
+ *
+ * @version   version?
+ * @date      Mon, 19 Jun 2006 15:33:28 -0300
+ * 
+ * @brief     The ArchC POWERPC functional model.
+ * 
+ * @attention Copyright (C) 2002-2006 --- The ArchC Team
+ *
+ */
+
 #include "powerpc_syscall.H"
 #include "ac_resources.H"
 
