@@ -1,4 +1,4 @@
-This is the POWERPC ArchC functional model.
+This is the POWERPC ArchC 2.0-beta functional model.
 
 This model has the system call emulation functions implemented,
 so it is a good idea to turn on the ABI option.
@@ -9,23 +9,35 @@ To use acsim, the interpreted simulator:
     make -f Makefile.archc              (compile)
     powerpc.x --load=<file-path> [args] (run an application)
 
-To use accsim, the compiled simulator:
-
-    accsim powerpc.ac -abi <file-path>  (create specialized simulator)
-    make -f Makefile.archc              (compile)
-    powerpc.x [args]                    (run the application)
-
 The [args] are optional arguments for the application.
 
 There are two formats recognized for application <file-path>:
 - ELF binary matching ArchC specifications
 - hexadecimal text file for ArchC
 
+
+To generate binary utilities use:
+
+    acbingen.sh -i<abs-install-path> -a<arch-name> powerpc.ac
+
+This will generate the tools source files using the architeture
+name <arch-name> (if omitted, powerpc is used), copy them to the
+binutils source tree, build and install them into the directory
+<abs-install-path> (which -must- be an absolute path).
+Use "acbingen.sh -h" to get information about the command-line
+options available.
+
+
 For more information visit http://www.archc.org
 
 
 CHANGELOG:
 ==========
+Version 0.7.1-archc2.0beta1
+
+- Model compliant with ArchC 2.0beta1
+
+
 Version 0.7.1:
 
 - Included optional properties to optimize compiled simulation

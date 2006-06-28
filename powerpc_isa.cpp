@@ -1,5 +1,5 @@
 /**
- * @file      powerpc-isa.cpp
+ * @file      powerpc_isa.cpp
  * @author    Bruno Corsi dos Santos
  *
  *            The ArchC Team
@@ -10,7 +10,7 @@
  *            http://www.lsc.ic.unicamp.br
  *
  * @version   version?
- * @date      Mon, 19 Jun 2006 15:33:28 -0300
+ * @date      Mon, 19 Jun 2006 15:50:48 -0300
  * 
  * @brief     The ArchC POWERPC functional model.
  * 
@@ -25,19 +25,21 @@
 // mtspr and mfspr instructions not completely implemented.
 // sc instruction not completely implemented and never used.
 
-#include  "powerpc-isa.H"
-#include  "ac_isa_init.cpp"
+#include  "powerpc_isa.H"
+#include  "powerpc_isa_init.cpp"
+#include  "powerpc_bhv_macros.H"
 
 //If you want debug information for this model, uncomment next line
 //#define DEBUG_MODEL
 #include  "ac_debug_model.H"
 
+using namespace powerpc_parms;
 
 //Compute CR0 fields LT, GT, EQ, SO
 //XER.SO must be updated by instruction before the use of this routine!
 //Arguments:
 //int result -> The result register
-inline void CR0_update(unsigned int result) {
+inline void CR0_update(ac_reg<ac_word> &CR, ac_reg<ac_word> &XER, unsigned int result) {
 
   /* LT field */
   if((result & 0x80000000) >> 31)
@@ -71,7 +73,7 @@ inline void CR0_update(unsigned int result) {
 //int s1 -> Source 1
 //int s2 -> Source 2
 //int s3 -> Source 3 (if only two sources, use 0)
-inline void add_XER_OV_SO_update(int result,int s1,int s2,int s3) {
+inline void add_XER_OV_SO_update(ac_reg<ac_word> &XER, int result,int s1,int s2,int s3) {
 
   long long int longresult =
     (long long int)(int)s1 + (long long int)(int)s2 + (long long int)(int)s3;
@@ -92,7 +94,7 @@ inline void add_XER_OV_SO_update(int result,int s1,int s2,int s3) {
 //int s1 -> Source 1
 //int s2 -> Source 2
 //int s3 -> Source 3 (if only two sources, use 0)
-inline void add_XER_CA_update(int result,int s1,int s2,int s3) {
+inline void add_XER_CA_update(ac_reg<ac_word> &XER, int result,int s1,int s2,int s3) {
 
   unsigned long long int longresult =
     (unsigned long long int)(unsigned int)s1 + 
@@ -111,7 +113,7 @@ inline void add_XER_CA_update(int result,int s1,int s2,int s3) {
 //int result -> The result register
 //int s1 -> Source 1
 //int s2 -> Source 2
-inline void divws_XER_OV_SO_update(int result,int s1,int s2) {
+inline void divws_XER_OV_SO_update(ac_reg<ac_word> &XER, int result,int s1,int s2) {
 
   long long int longresult =
     (long long int)(int)s1 / (long long int)(int)s2;
@@ -131,7 +133,7 @@ inline void divws_XER_OV_SO_update(int result,int s1,int s2) {
 //int result -> The result register
 //int s1 -> Source 1
 //int s2 -> Source 2
-inline void divwu_XER_OV_SO_update(int result,int s1,int s2) {
+inline void divwu_XER_OV_SO_update(ac_reg<ac_word> &XER, int result,int s1,int s2) {
 
   unsigned long long int longresult =
     (unsigned long long int)(unsigned int)s1 / 
@@ -148,7 +150,7 @@ inline void divwu_XER_OV_SO_update(int result,int s1,int s2) {
 
 
 //Function to do_branch
-inline void do_Branch(signed int ili,unsigned int iaa,unsigned int ilk) {
+inline void do_Branch(ac_reg<ac_word> &ac_pc, ac_reg<ac_word> &LR, signed int ili,unsigned int iaa,unsigned int ilk) {
   
   int displacement;
   unsigned int nia;
@@ -172,7 +174,7 @@ inline void do_Branch(signed int ili,unsigned int iaa,unsigned int ilk) {
 }
 
 //Function to do conditional branch
-inline void do_Branch_Cond(unsigned int ibo,unsigned int ibi,
+inline void do_Branch_Cond(ac_reg<ac_word> &ac_pc, ac_reg<ac_word> &LR, ac_reg<ac_word> &CR, ac_reg<ac_word> &CTR,  unsigned int ibo,unsigned int ibi,
 		    signed int ibd,unsigned int iaa,
 		    unsigned int ilk) {
   
@@ -218,7 +220,7 @@ inline void do_Branch_Cond(unsigned int ibo,unsigned int ibi,
 }
 
 //Function to do conditional branch to count register
-inline void do_Branch_Cond_Count_Reg(unsigned int ibo, unsigned int ibi,
+inline void do_Branch_Cond_Count_Reg(ac_reg<ac_word> &ac_pc, ac_reg<ac_word> &LR, ac_reg<ac_word> &CR, ac_reg<ac_word> &CTR, unsigned int ibo, unsigned int ibi,
 			      unsigned int ilk) {
 
   unsigned int nia;
@@ -255,7 +257,7 @@ inline void do_Branch_Cond_Count_Reg(unsigned int ibo, unsigned int ibi,
 }
 
 //Function to do conditional branch to link register
-inline void do_Branch_Cond_Link_Reg(unsigned int ibo,unsigned int ibi,
+inline void do_Branch_Cond_Link_Reg(ac_reg<ac_word> &ac_pc, ac_reg<ac_word> &LR, ac_reg<ac_word> &CR, ac_reg<ac_word> &CTR,unsigned int ibo,unsigned int ibi,
 			     unsigned int ilk) {
   
   unsigned int nia;
@@ -291,29 +293,6 @@ inline void do_Branch_Cond_Link_Reg(unsigned int ibo,unsigned int ibi,
 
 }
 
-//Function to test if conditional branch is taken
-inline int test_Branch_Cond(unsigned int ibo, unsigned int ibi) {
-
-  unsigned int masc;
-
-  masc=0x80000000;
-  masc=masc>>ibi;
-
-  if((ibo & 0x04) == 0x00)
-    CTR.write(CTR.read()-1);
-  
-  if(((ibo & 0x04) || /* Branch */
-      ((CTR.read()==0) && (ibo & 0x02)) || 
-      (!(CTR.read()==0) && !(ibo & 0x02)))
-     && 
-     ((ibo & 0x10) ||
-      (((CR.read() & masc) && (ibo & 0x08)) ||
-       (!(CR.read() & masc) && !(ibo & 0x08)))))
-    return 1;
-
-  else  /* No Branch */
-    return 0;
-}
 
 //Ceil function
 inline int ceil(int value, int divisor) {
@@ -355,20 +334,20 @@ inline unsigned int mask32rlw(unsigned int i,unsigned int f) {
 
 
 //Function dump General Purpose Registers
-inline void dumpGPR() {
+inline void dumpGPR(ac_regbank<32, ac_word, ac_Dword> &GPR) {
   int i;
   for(i=0 ; i<32 ; i++)
     dbg_printf("r%d -> %#x \n",i,GPR.read(i));
 }
 
 //Function that returns the value of XER TBC
-inline unsigned int XER_TBC_read() {
+inline unsigned int XER_TBC_read(ac_reg<ac_word> &XER) {
   return(XER.read() & 0x0000007F);
 }
 
 
 //Function that returns the value of XER OV
-inline unsigned int XER_OV_read() {
+inline unsigned int XER_OV_read(ac_reg<ac_word> &XER) {
   if(XER.read() & 0x40000000)
     return 1;
   else
@@ -376,7 +355,7 @@ inline unsigned int XER_OV_read() {
 }
 
 //Function that returns the value of XER SO
-inline unsigned int XER_SO_read() {
+inline unsigned int XER_SO_read(ac_reg<ac_word> &XER) {
   if(XER.read() & 0x80000000)
     return 1;
   else
@@ -384,7 +363,7 @@ inline unsigned int XER_SO_read() {
 }
 
 //Function that returns the value of XER CA
-inline unsigned int XER_CA_read() {
+inline unsigned int XER_CA_read(ac_reg<ac_word> &XER) {
   if(XER.read() & 0x20000000)
     return 1;
   else
@@ -393,10 +372,10 @@ inline unsigned int XER_CA_read() {
 
 
 //Function dump various registers
-inline void dumpREG() {
-  dbg_printf("XER.OV = %d\n",XER_OV_read());
-  dbg_printf("XER.SO = %d\n",XER_SO_read());
-  dbg_printf("XER.CA = %d\n",XER_CA_read());
+inline void dumpREG(ac_reg<ac_word> &XER, ac_reg<ac_word> &CR, ac_reg<ac_word> &LR, ac_reg<ac_word> &CTR) {
+  dbg_printf("XER.OV = %d\n",XER_OV_read(XER));
+  dbg_printf("XER.SO = %d\n",XER_SO_read(XER));
+  dbg_printf("XER.CA = %d\n",XER_CA_read(XER));
   dbg_printf("CR = %#x\n",CR.read());
   dbg_printf("LR = %#x\n",LR.read());
   dbg_printf("CTR = %#x\n",CTR.read());
@@ -426,6 +405,10 @@ void ac_behavior( begin )
   
 }
 
+void ac_behavior(end)
+{
+  dbg_printf("@@@ end behavior @@@\n");
+}
 
 //! Instruction Format behavior methods.
 void ac_behavior( I1 ){}
@@ -493,7 +476,7 @@ void ac_behavior( add_ )
   dbg_printf(" add. r%d, r%d, r%d\n\n",rt,ra,rb);
   int result=GPR.read(ra) + GPR.read(rb);
   
-  CR0_update(result);
+  CR0_update(CR, XER, result);
   GPR.write(rt,result);
 
 };
@@ -504,7 +487,7 @@ void ac_behavior( addo )
   dbg_printf(" addo r%d, r%d, r%d\n\n",rt,ra,rb);
   int result=GPR.read(ra) + GPR.read(rb);
 
-  add_XER_OV_SO_update(result,GPR.read(ra),GPR.read(rb),0);
+  add_XER_OV_SO_update(XER, result,GPR.read(ra),GPR.read(rb),0);
 
   GPR.write(rt,result);
 
@@ -517,8 +500,8 @@ void ac_behavior( addo_ )
   int result=GPR.read(ra) + GPR.read(rb);
 
   /* Note: XER_OV_SO_update before CR0_update */
-  add_XER_OV_SO_update(result,GPR.read(ra),GPR.read(rb),0);
-  CR0_update(result);
+  add_XER_OV_SO_update(XER, result,GPR.read(ra),GPR.read(rb),0);
+  CR0_update(CR, XER, result);
   GPR.write(rt,result);
 
 };
@@ -529,7 +512,7 @@ void ac_behavior( addc )
   dbg_printf(" addc r%d, r%d, r%d\n\n",rt,ra,rb);
   int result=GPR.read(ra) + GPR.read(rb);
 
-  add_XER_CA_update(result,GPR.read(ra),GPR.read(rb),0);
+  add_XER_CA_update(XER, result,GPR.read(ra),GPR.read(rb),0);
   GPR.write(rt,result);
 
 };
@@ -540,9 +523,9 @@ void ac_behavior( addc_ )
   dbg_printf(" addc. r%d, r%d, r%d\n\n",rt,ra,rb);
   int result=GPR.read(ra) + GPR.read(rb);
   
-  add_XER_CA_update(result,GPR.read(ra),GPR.read(rb),0);
+  add_XER_CA_update(XER, result,GPR.read(ra),GPR.read(rb),0);
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
 };
 
@@ -552,9 +535,9 @@ void ac_behavior( addco )
   dbg_printf(" addco r%d, r%d, r%d\n\n",rt,ra,rb);
   int result=GPR.read(ra) + GPR.read(rb);
 
-  add_XER_CA_update(result,GPR.read(ra),GPR.read(rb),0);
+  add_XER_CA_update(XER, result,GPR.read(ra),GPR.read(rb),0);
 
-  add_XER_OV_SO_update(result,GPR.read(ra),GPR.read(rb),0);
+  add_XER_OV_SO_update(XER, result,GPR.read(ra),GPR.read(rb),0);
 
   GPR.write(rt,result);
 
@@ -566,11 +549,11 @@ void ac_behavior( addco_ )
   dbg_printf(" addco. r%d, r%d, r%d\n\n",rt,ra,rb);
   int result=GPR.read(ra) + GPR.read(rb);
 
-  add_XER_CA_update(result,GPR.read(ra),GPR.read(rb),0);
+  add_XER_CA_update(XER, result,GPR.read(ra),GPR.read(rb),0);
 
   /* Note: XER_OV_SO_update before CR0_update */
-  add_XER_OV_SO_update(result,GPR.read(ra),GPR.read(rb),0);
-  CR0_update(result);
+  add_XER_OV_SO_update(XER, result,GPR.read(ra),GPR.read(rb),0);
+  CR0_update(CR, XER, result);
   
   GPR.write(rt,result);
 
@@ -581,9 +564,9 @@ void ac_behavior( adde )
 {
   dbg_printf(" adde r%d, r%d, r%d\n\n",rt,ra,rb);
 
-  int result=GPR.read(ra) + GPR.read(rb) + XER_CA_read();
+  int result=GPR.read(ra) + GPR.read(rb) + XER_CA_read(XER);
 
-  add_XER_CA_update(result,GPR.read(ra),GPR.read(rb),XER_CA_read());
+  add_XER_CA_update(XER, result,GPR.read(ra),GPR.read(rb),XER_CA_read(XER));
 
   GPR.write(rt,result);
 
@@ -594,11 +577,11 @@ void ac_behavior( adde_ )
 {
   dbg_printf(" adde. r%d, r%d, r%d\n\n",rt,ra,rb);
 
-  int result=GPR.read(ra) + GPR.read(rb) + XER_CA_read();
+  int result=GPR.read(ra) + GPR.read(rb) + XER_CA_read(XER);
   
-  add_XER_CA_update(result,GPR.read(ra),GPR.read(rb),XER_CA_read());
+  add_XER_CA_update(XER, result,GPR.read(ra),GPR.read(rb),XER_CA_read(XER));
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -608,11 +591,11 @@ void ac_behavior( addeo )
 {
   dbg_printf(" addeo r%d, r%d, r%d\n\n",rt,ra,rb);
 
-  int result=GPR.read(ra) + GPR.read(rb) + XER_CA_read();
+  int result=GPR.read(ra) + GPR.read(rb) + XER_CA_read(XER);
  
-  add_XER_CA_update(result,GPR.read(ra),GPR.read(rb),XER_CA_read());
+  add_XER_CA_update(XER, result,GPR.read(ra),GPR.read(rb),XER_CA_read(XER));
 
-  add_XER_OV_SO_update(result,GPR.read(ra),GPR.read(rb),XER_CA_read());
+  add_XER_OV_SO_update(XER, result,GPR.read(ra),GPR.read(rb),XER_CA_read(XER));
 
   GPR.write(rt,result);
 };
@@ -622,13 +605,13 @@ void ac_behavior( addeo_ )
 {
   dbg_printf(" addeo. r%d, r%d, r%d\n\n",rt,ra,rb);
 
-  int result=GPR.read(ra) + GPR.read(rb) + XER_CA_read();
+  int result=GPR.read(ra) + GPR.read(rb) + XER_CA_read(XER);
   
-  add_XER_CA_update(GPR.read(rt),GPR.read(ra),GPR.read(rb),XER_CA_read());
+  add_XER_CA_update(XER, GPR.read(rt),GPR.read(ra),GPR.read(rb),XER_CA_read(XER));
 
   /* Note: XER_OV_SO_update before CR0_update */
-  add_XER_OV_SO_update(result,GPR.read(ra),GPR.read(rb),XER_CA_read());
-  CR0_update(result);
+  add_XER_OV_SO_update(XER, result,GPR.read(ra),GPR.read(rb),XER_CA_read(XER));
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -654,7 +637,7 @@ void ac_behavior( addic )
   int ime32=d;
   int result=GPR.read(ra)+ime32;
 
-  add_XER_CA_update(result,GPR.read(ra),ime32,0);
+  add_XER_CA_update(XER, result,GPR.read(ra),ime32,0);
 
   GPR.write(rt,result);
 };
@@ -667,9 +650,9 @@ void ac_behavior( addic_ )
   int ime32=d;
   int result=GPR.read(ra)+ime32;
 
-  add_XER_CA_update(result,GPR.read(ra),ime32,0);
+  add_XER_CA_update(XER, result,GPR.read(ra),ime32,0);
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -692,9 +675,9 @@ void ac_behavior( addis )
 void ac_behavior( addme )
 {
   dbg_printf(" addme r%d, r%d\n\n",rt,ra);
-  int result=GPR.read(ra)+XER_CA_read()+(-1);
+  int result=GPR.read(ra)+XER_CA_read(XER)+(-1);
   
-  add_XER_CA_update(result,GPR.read(ra),XER_CA_read(),-1);
+  add_XER_CA_update(XER, result,GPR.read(ra),XER_CA_read(XER),-1);
 
   GPR.write(rt,result);
 };
@@ -703,11 +686,11 @@ void ac_behavior( addme )
 void ac_behavior( addme_ )
 {
   dbg_printf(" addme. r%d, r%d\n\n",rt,ra);
-  int result=GPR.read(ra)+XER_CA_read()+(-1);
+  int result=GPR.read(ra)+XER_CA_read(XER)+(-1);
   
-  add_XER_CA_update(result,GPR.read(ra),XER_CA_read(),-1);
+  add_XER_CA_update(XER, result,GPR.read(ra),XER_CA_read(XER),-1);
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -716,11 +699,11 @@ void ac_behavior( addme_ )
 void ac_behavior( addmeo )
 {
   dbg_printf(" addmeo r%d, r%d\n\n",rt,ra);
-  int result=GPR.read(ra)+XER_CA_read()+(-1);
+  int result=GPR.read(ra)+XER_CA_read(XER)+(-1);
   
-  add_XER_CA_update(result,GPR.read(ra),XER_CA_read(),-1);
+  add_XER_CA_update(XER, result,GPR.read(ra),XER_CA_read(XER),-1);
 
-  add_XER_OV_SO_update(result,GPR.read(ra),XER_CA_read(),-1);
+  add_XER_OV_SO_update(XER, result,GPR.read(ra),XER_CA_read(XER),-1);
  
   GPR.write(rt,result);
 };
@@ -729,13 +712,13 @@ void ac_behavior( addmeo )
 void ac_behavior( addmeo_ )
 {
   dbg_printf(" addmeo. r%d, r%d\n\n",rt,ra);
-  int result=GPR.read(ra)+XER_CA_read()+(-1);
+  int result=GPR.read(ra)+XER_CA_read(XER)+(-1);
   
-  add_XER_CA_update(result,GPR.read(ra),XER_CA_read(),-1);
+  add_XER_CA_update(XER, result,GPR.read(ra),XER_CA_read(XER),-1);
 
   /* Note: XER_OV_SO_update before CR0_update */
-  add_XER_OV_SO_update(result,GPR.read(ra),XER_CA_read(),-1);
-  CR0_update(result);  
+  add_XER_OV_SO_update(XER, result,GPR.read(ra),XER_CA_read(XER),-1);
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -744,9 +727,9 @@ void ac_behavior( addmeo_ )
 void ac_behavior( addze )
 {
   dbg_printf(" addze r%d, r%d\n\n",rt,ra);
-  int result=GPR.read(ra)+XER_CA_read();
+  int result=GPR.read(ra)+XER_CA_read(XER);
   
-  add_XER_CA_update(result,GPR.read(ra),XER_CA_read(),0);
+  add_XER_CA_update(XER, result,GPR.read(ra),XER_CA_read(XER),0);
 
   GPR.write(rt,result);
 };
@@ -755,11 +738,11 @@ void ac_behavior( addze )
 void ac_behavior( addze_ )
 {
   dbg_printf(" addze. %d, %d\n\n",rt,ra);
-  int result=GPR.read(ra)+XER_CA_read();
+  int result=GPR.read(ra)+XER_CA_read(XER);
   
-  add_XER_CA_update(result,GPR.read(ra),XER_CA_read(),0);
+  add_XER_CA_update(XER, result,GPR.read(ra),XER_CA_read(XER),0);
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -768,11 +751,11 @@ void ac_behavior( addze_ )
 void ac_behavior( addzeo )
 {
   dbg_printf(" addzeo r%d, r%d\n\n",rt,ra);
-  int result=GPR.read(ra)+XER_CA_read();
+  int result=GPR.read(ra)+XER_CA_read(XER);
   
-  add_XER_CA_update(result,GPR.read(ra),XER_CA_read(),0);
+  add_XER_CA_update(XER, result,GPR.read(ra),XER_CA_read(XER),0);
 
-  add_XER_OV_SO_update(result,GPR.read(ra),XER_CA_read(),0);  
+  add_XER_OV_SO_update(XER, result,GPR.read(ra),XER_CA_read(XER),0);  
 
   GPR.write(rt,result);
 };
@@ -781,13 +764,13 @@ void ac_behavior( addzeo )
 void ac_behavior( addzeo_ )
 {
   dbg_printf(" addzeo. r%d, r%d\n\n",rt,ra);
-  int result=GPR.read(ra)+XER_CA_read();
+  int result=GPR.read(ra)+XER_CA_read(XER);
     
-  add_XER_CA_update(result,GPR.read(ra),XER_CA_read(),0);
+  add_XER_CA_update(XER, result,GPR.read(ra),XER_CA_read(XER),0);
 
   /* Note: XER_OV_SO_update before CR0_update */
-  add_XER_OV_SO_update(result,GPR.read(ra),XER_CA_read(),0);  
-  CR0_update(result);
+  add_XER_OV_SO_update(XER, result,GPR.read(ra),XER_CA_read(XER),0);  
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -806,7 +789,7 @@ void ac_behavior( ande_ )
   dbg_printf(" and. r%d, r%d, r%d\n\n",ra,rs,rb);
   int result=GPR.read(rs) & GPR.read(rb);
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
   GPR.write(ra,result);
 };
@@ -825,7 +808,7 @@ void ac_behavior( andc_ )
   dbg_printf(" andc. r%d, r%d, r%d\n\n",ra,rs,rb);
   int result=GPR.read(rs) & ~GPR.read(rb);
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
   GPR.write(ra,result);
 };
@@ -837,7 +820,7 @@ void ac_behavior( andi_ )
   unsigned int ime32=(unsigned short int)ui;
   int result=GPR.read(rs) & ime32;
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
   GPR.write(ra,result);
 };
@@ -851,7 +834,7 @@ void ac_behavior( andis_ )
   ime32=ime32<<16;
   int result=GPR.read(rs) & ime32;
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
   GPR.write(ra,result);
 };
@@ -860,7 +843,7 @@ void ac_behavior( andis_ )
 void ac_behavior( b )
 {
   dbg_printf(" b %d\n\n",li);
-  do_Branch(li,aa,lk);
+  do_Branch(ac_pc, LR, li,aa,lk);
 
 };
 
@@ -868,7 +851,7 @@ void ac_behavior( b )
 void ac_behavior( ba )
 {
   dbg_printf(" ba %d\n\n",li);
-  do_Branch(li,aa,lk);
+  do_Branch(ac_pc, LR, li,aa,lk);
 
 };
 
@@ -876,7 +859,7 @@ void ac_behavior( ba )
 void ac_behavior( bl )
 {
   dbg_printf(" bl %d\n\n",li);
-  do_Branch(li,aa,lk);
+  do_Branch(ac_pc, LR, li,aa,lk);
   
 };
 
@@ -884,7 +867,7 @@ void ac_behavior( bl )
 void ac_behavior( bla )
 {
   dbg_printf(" bla %d\n\n",li);
-  do_Branch(li,aa,lk);
+  do_Branch(ac_pc, LR, li,aa,lk);
 
 };
 
@@ -892,7 +875,7 @@ void ac_behavior( bla )
 void ac_behavior( bc )
 {
   dbg_printf(" bc %d, %d, %d\n\n",bo,bi,bd);
-  do_Branch_Cond(bo,bi,bd,aa,lk);
+  do_Branch_Cond(ac_pc, LR, CR, CTR, bo,bi,bd,aa,lk);
 
 };
 
@@ -900,7 +883,7 @@ void ac_behavior( bc )
 void ac_behavior( bca )
 {
   dbg_printf(" bca %d, %d, %d\n\n",bo,bi,bd);
-  do_Branch_Cond(bo,bi,bd,aa,lk);
+  do_Branch_Cond(ac_pc, LR, CR, CTR, bo,bi,bd,aa,lk);
 
 };
 
@@ -908,7 +891,7 @@ void ac_behavior( bca )
 void ac_behavior( bcl )
 {
   dbg_printf(" bcl %d, %d, %d\n\n",bo,bi,bd);
-  do_Branch_Cond(bo,bi,bd,aa,lk);
+  do_Branch_Cond(ac_pc, LR, CR, CTR, bo,bi,bd,aa,lk);
   
 };
 
@@ -916,7 +899,7 @@ void ac_behavior( bcl )
 void ac_behavior( bcla )
 {
   dbg_printf(" bcla %d, %d, %d\n\n",bo,bi,bd);
-  do_Branch_Cond(bo,bi,bd,aa,lk);
+  do_Branch_Cond(ac_pc, LR, CR, CTR, bo,bi,bd,aa,lk);
 
 };
 
@@ -924,7 +907,7 @@ void ac_behavior( bcla )
 void ac_behavior( bcctr )
 {
   dbg_printf(" bcctr %d, %d\n\n",bo,bi);
-  do_Branch_Cond_Count_Reg(bo,bi,lk);
+  do_Branch_Cond_Count_Reg(ac_pc, LR, CR, CTR,bo,bi,lk);
 
 };
 
@@ -932,7 +915,7 @@ void ac_behavior( bcctr )
 void ac_behavior( bcctrl )
 {
   dbg_printf(" bcctrl %d, %d\n\n",bo,bi);
-  do_Branch_Cond_Count_Reg(bo,bi,lk);
+  do_Branch_Cond_Count_Reg(ac_pc, LR, CR, CTR,bo,bi,lk);
 
 };
 
@@ -940,7 +923,7 @@ void ac_behavior( bcctrl )
 void ac_behavior( bclr )
 {
   dbg_printf(" bclr %d, %d\n\n",bo,bi);
-  do_Branch_Cond_Link_Reg(bo,bi,lk);
+  do_Branch_Cond_Link_Reg(ac_pc, LR, CR, CTR,bo,bi,lk);
 
 };
 
@@ -948,7 +931,7 @@ void ac_behavior( bclr )
 void ac_behavior( bclrl )
 {
   dbg_printf(" bclrl %d, %d\n\n",bo,bi);
-  do_Branch_Cond_Link_Reg(bo,bi,lk);
+  do_Branch_Cond_Link_Reg(ac_pc, LR, CR, CTR,bo,bi,lk);
 
 };
 
@@ -966,7 +949,7 @@ void ac_behavior( cmp )
     c = c | 0x40000000;
   if((int)GPR.read(ra) == (int)GPR.read(rb))
     c = c | 0x20000000;
-  if(XER_SO_read()==1)
+  if(XER_SO_read(XER)==1)
     c = c | 0x10000000;
    
   c = c >> (n*4);
@@ -992,7 +975,7 @@ void ac_behavior( cmpi )
     c = c | 0x40000000;
   if((int)GPR.read(ra) == ime32)
     c = c | 0x20000000;
-  if(XER_SO_read()==1)
+  if(XER_SO_read(XER)==1)
     c = c | 0x10000000;
    
   c = c >> (n*4);
@@ -1019,7 +1002,7 @@ void ac_behavior( cmpl )
     c = c | 0x40000000;
   if(uintra == uintrb)
     c = c | 0x20000000;
-  if(XER_SO_read()==1)
+  if(XER_SO_read(XER)==1)
     c = c | 0x10000000;
    
   c = c >> (n*4);
@@ -1045,7 +1028,7 @@ void ac_behavior( cmpli )
     c = c | 0x40000000;
   if(GPR.read(ra) == ime32)
     c = c | 0x20000000;
-  if(XER_SO_read()==1)
+  if(XER_SO_read(XER)==1)
     c = c | 0x10000000;
    
   c = c >> (n*4);
@@ -1092,7 +1075,7 @@ void ac_behavior( cntlzw_ )
   }
   
   GPR.write(ra,n);
-  CR0_update(n); 
+  CR0_update(CR, XER, n); 
 
 };
 
@@ -1319,7 +1302,7 @@ void ac_behavior( divw_ )
   dbg_printf(" divw. r%d, r%d, r%d\n\n",rt,ra,rb);
   int result=(int)GPR.read(ra)/(int)GPR.read(rb);
   
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -1330,7 +1313,7 @@ void ac_behavior( divwo )
   dbg_printf(" divwo r%d, r%d, r%d\n\n",rt,ra,rb);
   int result=(int)GPR.read(ra)/(int)GPR.read(rb);  
 
-  divws_XER_OV_SO_update(result,GPR.read(ra),GPR.read(rb));
+  divws_XER_OV_SO_update(XER, result,GPR.read(ra),GPR.read(rb));
   
   GPR.write(rt,result);
 };
@@ -1343,8 +1326,8 @@ void ac_behavior( divwo_ )
   int result=(int)GPR.read(ra)/(int)GPR.read(rb);  
   
   /* Note: XER_OV_SO_update before CR0_update */
-  divws_XER_OV_SO_update(result,GPR.read(ra),GPR.read(rb));
-  CR0_update(result);
+  divws_XER_OV_SO_update(XER, result,GPR.read(ra),GPR.read(rb));
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -1365,7 +1348,7 @@ void ac_behavior( divwu_ )
   
   unsigned int result=(unsigned int)GPR.read(ra)/(unsigned int)GPR.read(rb);
   
-  CR0_update(result);
+  CR0_update(CR, XER, result);
   
   GPR.write(rt,result);
 };
@@ -1377,7 +1360,7 @@ void ac_behavior( divwou )
   
   unsigned int result=(unsigned int)GPR.read(ra)/(unsigned int)GPR.read(rb);  
   
-  divwu_XER_OV_SO_update(result,GPR.read(ra),GPR.read(rb));
+  divwu_XER_OV_SO_update(XER, result,GPR.read(ra),GPR.read(rb));
 
   GPR.write(rt,result);
 };
@@ -1390,8 +1373,8 @@ void ac_behavior( divwou_ )
   unsigned int result=(unsigned int)GPR.read(ra)/(unsigned int)GPR.read(rb);  
 
   /* Note: XER_OV_SO_update before CR0_update */
-  divwu_XER_OV_SO_update(result,GPR.read(ra),GPR.read(rb));
-  CR0_update(result);
+  divwu_XER_OV_SO_update(XER, result,GPR.read(ra),GPR.read(rb));
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -1411,7 +1394,7 @@ void ac_behavior( eqv_ )
 
   GPR.write(ra,~(GPR.read(rs)^GPR.read(rb)));
 
-  CR0_update(GPR.read(ra));
+  CR0_update(CR, XER, GPR.read(ra));
 };
 
 //!Instruction extsb behavior method.
@@ -1430,7 +1413,7 @@ void ac_behavior( extsb_ )
 
   GPR.write(ra,(char)(GPR.read(rs)));
 
-  CR0_update(GPR.read(ra));
+  CR0_update(CR, XER, GPR.read(ra));
 };
 
 //!Instruction extsh behavior method.
@@ -1449,7 +1432,7 @@ void ac_behavior( extsh_ )
 
   GPR.write(ra,(short int)(GPR.read(rs)));
 
-  CR0_update(GPR.read(ra));
+  CR0_update(CR, XER, GPR.read(ra));
 
 };
 
@@ -1729,7 +1712,7 @@ void ac_behavior( lswx )
   else
     ea=GPR.read(rb);
   
-  cnt=XER_TBC_read();
+  cnt=XER_TBC_read(XER);
   n=cnt;
   rfinal=((rt + ceil(cnt,4) - 1) % 32);
   r=rt-1;
@@ -1880,11 +1863,11 @@ void ac_behavior( mcrxr )
   unsigned int tmp=0x00;
   
   /* Calculate tmp bits by XER */
-  if(XER_SO_read())
+  if(XER_SO_read(XER))
     tmp=tmp | 0x80000000;
-  if(XER_OV_read())
+  if(XER_OV_read(XER))
     tmp=tmp | 0x40000000;
-  if(XER_CA_read())
+  if(XER_CA_read(XER))
     tmp=tmp | 0x20000000;
 
   /* Move altered bits to correct CR field */
@@ -2082,7 +2065,7 @@ void ac_behavior( mulhw_ )
   high=shprod;
   
   GPR.write(rt,high);
-  CR0_update(high); 
+  CR0_update(CR, XER, high); 
 };
 
 //!Instruction mulhwu behavior method.
@@ -2116,7 +2099,7 @@ void ac_behavior( mulhwu_ )
   high=prod;
   
   GPR.write(rt,high);
-  CR0_update(high); 
+  CR0_update(CR, XER, high); 
 };
 
 //!Instruction mullhw behavior method.
@@ -2142,7 +2125,7 @@ void ac_behavior( mullhw_ )
     (int)(short int)(GPR.read(rb) & 0x0000FFFF);
   
   GPR.write(rt,prod);
-  CR0_update(prod); 
+  CR0_update(CR, XER, prod); 
 };
 
 //!Instruction mullhwu behavior method.
@@ -2168,7 +2151,7 @@ void ac_behavior( mullhwu_ )
     (unsigned int)(unsigned short int)(GPR.read(rb) & 0x0000FFFF);
   
   GPR.write(rt,prod);
-  CR0_update(prod); 
+  CR0_update(CR, XER, prod); 
 };
 
 //!Instruction mulli behavior method.
@@ -2213,7 +2196,7 @@ void ac_behavior( mullw_ )
   low=prod;
 
   GPR.write(rt,low);
-  CR0_update(low);
+  CR0_update(CR, XER, low);
 
 };
 
@@ -2260,7 +2243,7 @@ void ac_behavior( mullwo_ )
   else
     XER.write(XER.read() & 0xBFFFFFFF); /* Write 0 to bit 1 OV */
   
-  CR0_update(low);
+  CR0_update(CR, XER, low);
 };
 
 //!Instruction nand behavior method.
@@ -2278,7 +2261,7 @@ void ac_behavior( nand_ )
   int result=~(GPR.read(rs) & GPR.read(rb));
 
   GPR.write(ra,result);
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
 };
 
@@ -2297,7 +2280,7 @@ void ac_behavior( neg_ )
   
   int result=~(GPR.read(ra))+1;
   GPR.write(rt,result);
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 };
 
 //!Instruction nego behavior method.
@@ -2334,7 +2317,7 @@ void ac_behavior( nego_ )
     XER.write(XER.read() & 0xBFFFFFFF); /* Write 0 to bit 1 OV */
   
   GPR.write(rt,result);
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
 };
 
@@ -2353,7 +2336,7 @@ void ac_behavior( nor_ )
   int result=~(GPR.read(rs) | GPR.read(rb));
 
   GPR.write(ra,result);
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
 };
 
@@ -2372,7 +2355,7 @@ void ac_behavior( ore_ )
   int result=GPR.read(rs) | GPR.read(rb);
 
   GPR.write(ra,result);
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
 };
 
@@ -2391,7 +2374,7 @@ void ac_behavior( orc_ )
   int result=GPR.read(rs) | ~GPR.read(rb);
 
   GPR.write(ra,result);
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
 };
 
@@ -2433,7 +2416,7 @@ void ac_behavior( rlwimi_ )
 
   GPR.write(ra,(r & m) | (GPR.read(ra) & ~m));
 
-  CR0_update(GPR.read(ra));  
+  CR0_update(CR, XER, GPR.read(ra));  
 
 };
 
@@ -2459,7 +2442,7 @@ void ac_behavior( rlwinm_ )
 
   GPR.write(ra,(r & m));
 
-  CR0_update(GPR.read(ra));  
+  CR0_update(CR, XER, GPR.read(ra));  
 
 };
 
@@ -2485,7 +2468,7 @@ void ac_behavior( rlwnm_ )
 
   GPR.write(ra,(r & m));
 
-  CR0_update(GPR.read(ra));  
+  CR0_update(CR, XER, GPR.read(ra));  
 
 };
 
@@ -2541,7 +2524,7 @@ void ac_behavior( slw_ )
   int result=r & m;
   GPR.write(ra,result);
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
 };
 
@@ -2608,7 +2591,7 @@ void ac_behavior( sraw_ )
     XER.write(XER.read() & 0xDFFFFFFF); /* Write 0 to bit 2 CA */
   
   /* Update CR register */
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
 };
 
@@ -2660,7 +2643,7 @@ void ac_behavior( srawi_ )
     XER.write(XER.read() & 0xDFFFFFFF); /* Write 0 to bit 2 CA */
 
   /* Update CR register */
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 };
 
 //!Instruction srw behavior method.
@@ -2699,7 +2682,7 @@ void ac_behavior( srw_ )
 
   GPR.write(ra,result);
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
 };
 
@@ -2910,7 +2893,7 @@ void ac_behavior( stswx )
   else
     ea=GPR.read(rb);
   
-  n=XER_TBC_read();
+  n=XER_TBC_read(XER);
 
   r=rs-1;
   i=0;
@@ -3029,7 +3012,7 @@ void ac_behavior( subf_ )
   int result=~GPR.read(ra) + GPR.read(rb) + 1;
   
   GPR.write(rt,result);
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
 };
 
@@ -3039,7 +3022,7 @@ void ac_behavior( subfo )
   dbg_printf(" subfo r%d, r%d, r%d\n\n",rt,ra,rb);
   int result=~GPR.read(ra) + GPR.read(rb) + 1;
 
-  add_XER_OV_SO_update(result,~GPR.read(ra),GPR.read(rb),1);
+  add_XER_OV_SO_update(XER, result,~GPR.read(ra),GPR.read(rb),1);
   GPR.write(rt,result);
 };
 
@@ -3050,8 +3033,8 @@ void ac_behavior( subfo_ )
   int result=~GPR.read(ra) + GPR.read(rb) + 1;
 
   /* Note: XER_OV_SO_update before CR0_update */
-  add_XER_OV_SO_update(result,~GPR.read(ra),GPR.read(rb),1);
-  CR0_update(result);
+  add_XER_OV_SO_update(XER, result,~GPR.read(ra),GPR.read(rb),1);
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -3062,7 +3045,7 @@ void ac_behavior( subfc )
   dbg_printf(" subfc r%d, r%d, r%d\n\n",rt,ra,rb);
   int result=~GPR.read(ra) + GPR.read(rb) + 1;
 
-  add_XER_CA_update(result,~GPR.read(ra),GPR.read(rb),1);
+  add_XER_CA_update(XER, result,~GPR.read(ra),GPR.read(rb),1);
 
   GPR.write(rt,result);
 };
@@ -3073,9 +3056,9 @@ void ac_behavior( subfc_ )
   dbg_printf(" subfc. r%d, r%d, r%d\n\n",rt,ra,rb);
   int result=~GPR.read(ra) + GPR.read(rb) + 1;
   
-  add_XER_CA_update(result,~GPR.read(ra),GPR.read(rb),1);
+  add_XER_CA_update(XER, result,~GPR.read(ra),GPR.read(rb),1);
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -3086,9 +3069,9 @@ void ac_behavior( subfco )
   dbg_printf(" subfco r%d, r%d, r%d\n\n",rt,ra,rb);
   int result=~GPR.read(ra) + GPR.read(rb) + 1;
 
-  add_XER_CA_update(result,~GPR.read(ra),GPR.read(rb),1);
+  add_XER_CA_update(XER, result,~GPR.read(ra),GPR.read(rb),1);
 
-  add_XER_OV_SO_update(result,~GPR.read(ra),GPR.read(rb),1);
+  add_XER_OV_SO_update(XER, result,~GPR.read(ra),GPR.read(rb),1);
 
   GPR.write(rt,result);
 };
@@ -3099,11 +3082,11 @@ void ac_behavior( subfco_ )
   dbg_printf(" subfco. r%d, r%d, r%d\n\n",rt,ra,rb);
   int result=~GPR.read(ra) + GPR.read(rb) + 1;
 
-  add_XER_CA_update(result,~GPR.read(ra),GPR.read(rb),1);
+  add_XER_CA_update(XER, result,~GPR.read(ra),GPR.read(rb),1);
 
   /* Note: XER_OV_SO_update before CR0_update */
-  add_XER_OV_SO_update(result,~GPR.read(ra),GPR.read(rb),1);
-  CR0_update(result);
+  add_XER_OV_SO_update(XER, result,~GPR.read(ra),GPR.read(rb),1);
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -3113,9 +3096,9 @@ void ac_behavior( subfe )
 {
   dbg_printf(" subfe r%d, r%d, r%d\n\n",rt,ra,rb);
 
-  int result=~GPR.read(ra) + GPR.read(rb) + XER_CA_read();
+  int result=~GPR.read(ra) + GPR.read(rb) + XER_CA_read(XER);
 
-  add_XER_CA_update(result,~GPR.read(ra),GPR.read(rb),XER_CA_read());
+  add_XER_CA_update(XER, result,~GPR.read(ra),GPR.read(rb),XER_CA_read(XER));
 
   GPR.write(rt,result);
 };
@@ -3125,11 +3108,11 @@ void ac_behavior( subfe_ )
 {
   dbg_printf(" subfe. r%d, r%d, r%d\n\n",rt,ra,rb);
 
-  int result=~GPR.read(ra) + GPR.read(rb) + XER_CA_read();
+  int result=~GPR.read(ra) + GPR.read(rb) + XER_CA_read(XER);
   
-  add_XER_CA_update(result,~GPR.read(ra),GPR.read(rb),XER_CA_read());
+  add_XER_CA_update(XER, result,~GPR.read(ra),GPR.read(rb),XER_CA_read(XER));
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
   
   GPR.write(rt,result);
 };
@@ -3139,11 +3122,11 @@ void ac_behavior( subfeo )
 {
   dbg_printf(" subfeo r%d, r%d, r%d\n\n",rt,ra,rb);
 
-  int result=~GPR.read(ra) + GPR.read(rb) + XER_CA_read();
+  int result=~GPR.read(ra) + GPR.read(rb) + XER_CA_read(XER);
  
-  add_XER_CA_update(result,~GPR.read(ra),GPR.read(rb),XER_CA_read());
+  add_XER_CA_update(XER, result,~GPR.read(ra),GPR.read(rb),XER_CA_read(XER));
 
-  add_XER_OV_SO_update(result,~GPR.read(ra),GPR.read(rb),XER_CA_read());
+  add_XER_OV_SO_update(XER, result,~GPR.read(ra),GPR.read(rb),XER_CA_read(XER));
 
   GPR.write(rt,result);
 };
@@ -3153,13 +3136,13 @@ void ac_behavior( subfeo_ )
 {
   dbg_printf(" subfeo. r%d, r%d, r%d\n\n",rt,ra,rb);
 
-  int result=~GPR.read(ra) + GPR.read(rb) + XER_CA_read();
+  int result=~GPR.read(ra) + GPR.read(rb) + XER_CA_read(XER);
   
-  add_XER_CA_update(result,~GPR.read(ra),GPR.read(rb),XER_CA_read());
+  add_XER_CA_update(XER, result,~GPR.read(ra),GPR.read(rb),XER_CA_read(XER));
 
   /* Note: XER_OV_SO_update before CR0_update */
-  add_XER_OV_SO_update(result,~GPR.read(ra),GPR.read(rb),XER_CA_read());
-  CR0_update(result);
+  add_XER_OV_SO_update(XER, result,~GPR.read(ra),GPR.read(rb),XER_CA_read(XER));
+  CR0_update(CR, XER, result);
   
   GPR.write(rt,result);
 };
@@ -3171,7 +3154,7 @@ void ac_behavior( subfic )
   int ime32=d;
   int result=~GPR.read(ra)+ime32+1;
 
-  add_XER_CA_update(result,~GPR.read(ra),ime32,1);
+  add_XER_CA_update(XER, result,~GPR.read(ra),ime32,1);
 
   GPR.write(rt,result);
 };
@@ -3180,9 +3163,9 @@ void ac_behavior( subfic )
 void ac_behavior( subfme )
 {
   dbg_printf(" subfme r%d, r%d\n\n",rt,ra);
-  int result=~GPR.read(ra)+XER_CA_read()+(-1);
+  int result=~GPR.read(ra)+XER_CA_read(XER)+(-1);
   
-  add_XER_CA_update(result,~GPR.read(ra),XER_CA_read(),-1);
+  add_XER_CA_update(XER, result,~GPR.read(ra),XER_CA_read(XER),-1);
 
   GPR.write(rt,result);
 };
@@ -3191,11 +3174,11 @@ void ac_behavior( subfme )
 void ac_behavior( subfme_ )
 {
   dbg_printf(" subfme. r%d, r%d\n\n",rt,ra);
-  int result=~GPR.read(ra)+XER_CA_read()+(-1);
+  int result=~GPR.read(ra)+XER_CA_read(XER)+(-1);
   
-  add_XER_CA_update(result,~GPR.read(ra),XER_CA_read(),-1);
+  add_XER_CA_update(XER, result,~GPR.read(ra),XER_CA_read(XER),-1);
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -3204,11 +3187,11 @@ void ac_behavior( subfme_ )
 void ac_behavior( subfmeo )
 {
   dbg_printf(" subfmeo r%d, r%d\n\n",rt,ra);
-  int result=~GPR.read(ra)+XER_CA_read()+(-1);
+  int result=~GPR.read(ra)+XER_CA_read(XER)+(-1);
   
-  add_XER_CA_update(result,~GPR.read(ra),XER_CA_read(),-1);
+  add_XER_CA_update(XER, result,~GPR.read(ra),XER_CA_read(XER),-1);
 
-  add_XER_OV_SO_update(result,~GPR.read(ra),XER_CA_read(),-1);
+  add_XER_OV_SO_update(XER, result,~GPR.read(ra),XER_CA_read(XER),-1);
  
   GPR.write(rt,result);
 };
@@ -3217,13 +3200,13 @@ void ac_behavior( subfmeo )
 void ac_behavior( subfmeo_ )
 {
   dbg_printf(" subfmeo. r%d, r%d\n\n",rt,ra);
-  int result=~GPR.read(ra)+XER_CA_read()+(-1);
+  int result=~GPR.read(ra)+XER_CA_read(XER)+(-1);
   
-  add_XER_CA_update(result,~GPR.read(ra),XER_CA_read(),-1);
+  add_XER_CA_update(XER, result,~GPR.read(ra),XER_CA_read(XER),-1);
 
   /* Note: XER_OV_SO_update before CR0_update */
-  add_XER_OV_SO_update(result,~GPR.read(ra),XER_CA_read(),-1);
-  CR0_update(result);
+  add_XER_OV_SO_update(XER, result,~GPR.read(ra),XER_CA_read(XER),-1);
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);  
 };
@@ -3232,9 +3215,9 @@ void ac_behavior( subfmeo_ )
 void ac_behavior( subfze )
 {
   dbg_printf(" subfze r%d, r%d\n\n",rt,ra);
-  int result=~GPR.read(ra)+XER_CA_read();
+  int result=~GPR.read(ra)+XER_CA_read(XER);
   
-  add_XER_CA_update(result,~GPR.read(ra),XER_CA_read(),0);
+  add_XER_CA_update(XER, result,~GPR.read(ra),XER_CA_read(XER),0);
 
   GPR.write(rt,result);
 };
@@ -3243,11 +3226,11 @@ void ac_behavior( subfze )
 void ac_behavior( subfze_ )
 {
   dbg_printf(" subfze. r%d, r%d\n\n",rt,ra);
-  int result=~GPR.read(ra)+XER_CA_read();
+  int result=~GPR.read(ra)+XER_CA_read(XER);
   
-  add_XER_CA_update(result,~GPR.read(ra),XER_CA_read(),0);
+  add_XER_CA_update(XER, result,~GPR.read(ra),XER_CA_read(XER),0);
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -3256,11 +3239,11 @@ void ac_behavior( subfze_ )
 void ac_behavior( subfzeo )
 {
   dbg_printf(" subfzeo r%d, r%d\n\n",rt,ra);
-  int result=~GPR.read(ra)+XER_CA_read();
+  int result=~GPR.read(ra)+XER_CA_read(XER);
   
-  add_XER_CA_update(result,~GPR.read(ra),XER_CA_read(),0);
+  add_XER_CA_update(XER, result,~GPR.read(ra),XER_CA_read(XER),0);
 
-  add_XER_OV_SO_update(result,~GPR.read(ra),XER_CA_read(),0);
+  add_XER_OV_SO_update(XER, result,~GPR.read(ra),XER_CA_read(XER),0);
 
   GPR.write(rt,result);
 };
@@ -3269,13 +3252,13 @@ void ac_behavior( subfzeo )
 void ac_behavior( subfzeo_ )
 {
   dbg_printf(" subfzeo. r%d, r%d\n\n",rt,ra);
-  int result=~GPR.read(ra)+XER_CA_read();
+  int result=~GPR.read(ra)+XER_CA_read(XER);
     
-  add_XER_CA_update(result,~GPR.read(ra),XER_CA_read(),0);
+  add_XER_CA_update(XER, result,~GPR.read(ra),XER_CA_read(XER),0);
 
   /* Note: XER_OV_SO_update before CR0_update */
-  add_XER_OV_SO_update(result,~GPR.read(ra),XER_CA_read(),0);  
-  CR0_update(result);
+  add_XER_OV_SO_update(XER, result,~GPR.read(ra),XER_CA_read(XER),0);  
+  CR0_update(CR, XER, result);
 
   GPR.write(rt,result);
 };
@@ -3294,7 +3277,7 @@ void ac_behavior( xxor_ )
   dbg_printf(" xor. r%d, r%d, r%d\n\n",ra,rs,rb);
   int result=GPR.read(rs) ^ GPR.read(rb);
 
-  CR0_update(result);
+  CR0_update(CR, XER, result);
 
   GPR.write(ra,result);
 };

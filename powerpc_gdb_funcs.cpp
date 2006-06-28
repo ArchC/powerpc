@@ -10,7 +10,7 @@
  *            http://www.lsc.ic.unicamp.br
  *
  * @version   version?
- * @date      Mon, 19 Jun 2006 15:33:28 -0300
+ * @date      Mon, 19 Jun 2006 15:50:48 -0300
  * 
  * @brief     The ArchC POWERPC functional model.
  * 

@@ -10,7 +10,7 @@
  *            http://www.lsc.ic.unicamp.br
  *
  * @version   version?
- * @date      Mon, 19 Jun 2006 15:33:28 -0300
+ * @date      Mon, 19 Jun 2006 15:50:48 -0300
  * 
  * @brief     The ArchC POWERPC functional model.
  * 
@@ -19,7 +19,8 @@
  */
 
 #include "powerpc_syscall.H"
-#include "ac_resources.H"
+
+using namespace powerpc_parms;
 
 void powerpc_syscall::get_buffer(int argn, unsigned char* buf, unsigned int size)
 {
@@ -66,12 +67,11 @@ void powerpc_syscall::return_from_syscall()
   oldr31=MEM.read(GPR.read(1)+28);
   GPR.write(1,oldr1);
   GPR.write(31,oldr31);
-  ac_resources::ac_pc=LR.read();
+  ac_pc=LR.read();
 }
 
 void powerpc_syscall::set_prog_args(int argc, char **argv)
 {
-  extern unsigned AC_RAM_END;
   int i, j, base;
 
   unsigned int ac_argv[30];
