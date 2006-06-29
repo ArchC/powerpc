@@ -33,6 +33,12 @@ For more information visit http://www.archc.org
 
 CHANGELOG:
 ==========
+
+Version 0.7.2-archc2.0beta3:
+
+- Added license headers
+
+
 Version 0.7.1-archc2.0beta1
 
 - Model compliant with ArchC 2.0beta1
