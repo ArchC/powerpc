@@ -34,6 +34,12 @@ For more information visit http://www.archc.org
 CHANGELOG:
 ==========
 
+Version 0.7.3-archc2.0:
+
+- Added binary utilities support files
+- Adjusted mullhw syntax
+
+
 Version 0.7.2-archc2.0beta3:
 
 - Added license headers

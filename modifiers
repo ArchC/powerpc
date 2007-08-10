@@ -1,0 +1,24 @@
+
+ac_modifier_encode(carry)
+{
+  reloc->D1.d = (reloc->input + 0x00008000) >> 16;
+
+//  reloc->output = (reloc->input + 0x00008000) >> 16;
+}
+
+
+ac_modifier_decode(carry)
+{
+}
+
+
+ac_modifier_encode(pcrel)
+{
+  reloc->output = (reloc->input - reloc->address) >> 2;
+}
+
+
+ac_modifier_decode(pcrel)
+{
+  reloc->output = (reloc->input << 2) + reloc->address;
+}
