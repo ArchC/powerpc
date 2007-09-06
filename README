@@ -34,10 +34,11 @@ For more information visit http://www.archc.org
 CHANGELOG:
 ==========
 
-Version 0.7.3-archc2.0:
+Version 0.7.3:
 
 - Added binary utilities support files
 - Adjusted mullhw syntax
+- ArchC 2.0 compliant
 
 
 Version 0.7.2-archc2.0beta3:
