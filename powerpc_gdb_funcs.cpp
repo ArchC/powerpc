@@ -20,6 +20,7 @@
 
 #include "powerpc.H"
 
+using namespace powerpc_parms;
 
 int powerpc::nRegs(void) {
   return 104;
@@ -35,7 +36,7 @@ ac_word powerpc::reg_read( int reg ) {
     switch (reg) {
     
       case 96:
-	n=ac_resources::ac_pc;
+	n=ac_pc;
       break;
 
       /* case ??:
@@ -79,7 +80,7 @@ void powerpc::reg_write( int reg, ac_word value ) {
     switch (reg) {
 
     case 96:
-      ac_resources::ac_pc=value;
+      ac_pc=value;
     break;
 
     /*    case ??:
@@ -113,11 +114,11 @@ void powerpc::reg_write( int reg, ac_word value ) {
 
 
 unsigned char powerpc::mem_read( unsigned int address ) {
-  return ac_resources::IM->read_byte( address );
+  return IM->read_byte( address );
 }
 
 
 void powerpc::mem_write( unsigned int address, unsigned char byte ) {
-  ac_resources::IM->write_byte( address, byte );
+  IM->write_byte( address, byte );
 }
 
