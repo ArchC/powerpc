@@ -15,6 +15,20 @@
  * @brief     The ArchC POWERPC functional model.
  * 
  * @attention Copyright (C) 2002-2006 --- The ArchC Team
+ * 
+ * This program is free software; you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 2 of the License, or 
+ * (at your option) any later version. 
+ * 
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ * GNU General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU General Public License 
+ * along with this program; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
@@ -293,6 +307,32 @@ inline void do_Branch_Cond_Link_Reg(ac_reg<ac_word> &ac_pc, ac_reg<ac_word> &LR,
 
 }
 
+#ifdef AC_COMPSIM
+//Function to test if conditional branch is taken
+int test_Branch_Cond(ac_reg<ac_word> &CR, ac_reg<ac_word> &CTR, unsigned int ibo, unsigned int ibi) {
+
+  unsigned int masc;
+  unsigned int test;
+ 
+  masc=0x80000000;
+  masc=masc>>ibi;
+
+  if((ibo & 0x04) == 0x00)
+    CTR.write(CTR.read()-1);
+  
+  if(((ibo & 0x04) || /* Branch */
+      ((CTR.read()==0) && (ibo & 0x02)) || 
+     (!(CTR.read()==0) && !(ibo & 0x02)))
+     &&   
+     ((ibo & 0x10) ||
+      (((CR.read() & masc) && (ibo & 0x08)) ||
+       (!(CR.read() & masc) && !(ibo & 0x08)))))
+    return 1;
+
+  else  /* No Branch */
+    return 0;
+}
+#endif
 
 //Ceil function
 inline int ceil(int value, int divisor) {

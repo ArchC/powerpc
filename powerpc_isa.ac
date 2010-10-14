@@ -19,6 +19,20 @@
  * @brief     The ArchC POWERPC functional model.
  * 
  * @attention Copyright (C) 2002-2006 --- The ArchC Team
+ * 
+ * This program is free software; you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 2 of the License, or 
+ * (at your option) any later version. 
+ * 
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ * GNU General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU General Public License 
+ * along with this program; if not, write to the Free Software 
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
@@ -1005,33 +1019,33 @@ AC_ISA(powerpc) {
 
 
     bc.is_branch(ac_pc+(bd<<2));
-    bc.cond(test_Branch_Cond(bo,bi));
+    bc.cond(test_Branch_Cond(CR,CTR,bo,bi));
 
     bca.is_branch(bd<<2);
-    bca.cond(test_Branch_Cond(bo,bi));
+    bca.cond(test_Branch_Cond(CR,CTR,bo,bi));
 
     bcl.is_branch(ac_pc+(bd<<2));
-    bcl.cond(test_Branch_Cond(bo,bi));
+    bcl.cond(test_Branch_Cond(CR,CTR,bo,bi));
     bcl.behavior(LR.write(ac_pc+4););
 
     bcla.is_branch(bd<<2);
-    bcla.cond(test_Branch_Cond(bo,bi));
+    bcla.cond(test_Branch_Cond(CR,CTR,bo,bi));
     bcla.behavior(LR.write(ac_pc+4););
 
 
     bcctr.is_branch(CTR.read() & 0xFFFFFFFC);
-    bcctr.cond(test_Branch_Cond(bo,bi));
+    bcctr.cond(test_Branch_Cond(CR,CTR,bo,bi));
 
     bcctrl.is_branch(CTR.read() & 0xFFFFFFFC);
-    bcctrl.cond(test_Branch_Cond(bo,bi));
+    bcctrl.cond(test_Branch_Cond(CR,CTR,bo,bi));
     bcctrl.behavior(LR.write(ac_pc+4););
 
 
     bclr.is_branch(LR.read() & 0xFFFFFFFC);
-    bclr.cond(test_Branch_Cond(bo,bi));
+    bclr.cond(test_Branch_Cond(CR,CTR,bo,bi));
 
     bclrl.is_branch(LR.read() & 0xFFFFFFFC);
-                bclrl.cond(test_Branch_Cond(bo,bi));
+                bclrl.cond(test_Branch_Cond(CR,CTR,bo,bi));
     bclrl.behavior(LR.write(ac_pc+4););
 
 
