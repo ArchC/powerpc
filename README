@@ -1,4 +1,4 @@
-This is the POWERPC ArchC 2.0-beta functional model.
+This is the POWERPC ArchC 2.1 functional model.
 
 This model has the system call emulation functions implemented,
 so it is a good idea to turn on the ABI option.
@@ -33,6 +33,10 @@ For more information visit http://www.archc.org
 
 CHANGELOG:
 ==========
+
+Version 0.7.4:
+- Fixed gdb_funcs bug when using ArchC 2.0 or later
+- ArchC 2.1 compliant
 
 Version 0.7.3:
 
