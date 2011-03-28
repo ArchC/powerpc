@@ -1,0 +1,256 @@
+// PowerPC C Compiler Backend Information File
+// Part of PowerPC ArchC Model
+
+//====================-- Machine specific rules --============================//
+
+// compu is a compare operator which forces unsigned comparisons
+// and produces signed flags
+define operator compu    as arity 2;
+
+(cjump const:cond:ult (comp aa:any bb:any) cc:any) =>
+  (cjump const:cond:lt (compu aa:any bb:any) cc:any);
+(cjump const:cond:ugt (comp aa:any bb:any) cc:any) =>
+  (cjump const:cond:gt (compu aa:any bb:any) cc:any);
+(cjump const:cond:uge (comp aa:any bb:any) cc:any) =>
+  (cjump const:cond:ge (compu aa:any bb:any) cc:any);
+(cjump const:cond:ule (comp aa:any bb:any) cc:any) =>
+  (cjump const:cond:le (compu aa:any bb:any) cc:any);
+  
+(nop) =>
+  (transfer AReg:regs (or AReg:regs AReg:regs const:byte:0));
+  
+(transfer a:regs b:regs) =>
+  (transfer a:regs (or b:regs b:regs));
+
+//=====================-- Registers definitions --============================//
+
+define registers GPR:regs as (
+  r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 r16 
+  r17 r18 r19 r20 r21 r22 r23 r24 r25 r26 r27 r28 r29 r30 r31
+);
+
+define operand spec as size 32 like int;
+
+define registers SPECIAL:spec as (
+  CR CTR LR
+);
+
+//===========================-- ABI stuff --==================================//
+
+redefine operand tgtimm size to 16;
+
+define abi as (
+  define callee save registers as (r14 r15 r16 r17 r18 r19 r20 r21 r22 r23 
+				   r24 r25 r26 r27 r28 r29 r30 r31);
+  define reserved registers as    (r1 r2 r13);
+  define auxiliar registers as    (r11 r12);
+  //define calling convention for int as stack size 4 alignment 4;
+  define calling convention for int as (r3 r4 r5 r6 r7 r8 r9 r10);
+  define calling convention for int as stack size 4 alignment 4;
+  define return convention for int as (r3 r4);
+  //define programcounter register as PC;
+  define stackpointer register as r13;
+  define framepointer register as r14;
+  define return register as LR;
+  define stack grows down alignment 8;
+  define pcoffset -8;
+);
+
+//==================-- Instruction semantic fragments --======================//
+
+
+
+//=======================-- Instructions definitions --=======================//
+
+// * DATA PROCESSING  - FIXED POINT INSTRUCTIONS *
+
+/* Logical */
+define instruction ande semantic as (
+  (transfer Op1:GPR (and Op2:GPR Op3:GPR));
+) cost 1;
+define instruction andi_ semantic as (
+  (transfer Op1:GPR (and Op2:GPR imm:Op3:tgtimm));
+) cost 1;
+define instruction ore semantic as (
+  (transfer Op1:GPR (or Op2:GPR Op3:GPR));
+) cost 1;
+define instruction ori semantic as (
+  //let Op1 = "r0", Op2 = "r0", Op3 = "0" in
+    //(nop);
+  (transfer Op1:GPR (or Op2:GPR imm:Op3:tgtimm));
+) cost 1;
+define instruction xxor semantic as (
+  (transfer Op1:GPR (xor Op2:GPR Op3:GPR));
+) cost 1;
+define instruction xori semantic as (
+  (transfer Op1:GPR (xor Op2:GPR imm:Op3:tgtimm));
+) cost 1;
+
+// Shift 
+define instruction rlwinm semantic as (
+  let Op4 = "0", Op5 = "31" in 
+    (transfer Op1:GPR (rol Op2:GPR imm:Op3:tgtimm));
+) cost 1;
+define instruction slw semantic as (
+  (transfer Op1:GPR (shl Op2:GPR Op3:GPR));
+) cost 1;
+define instruction srw semantic as (
+  (transfer Op1:GPR (shr Op2:GPR Op3:GPR));
+) cost 1;
+define instruction srawi semantic as (
+  (transfer Op1:GPR (asr Op2:GPR imm:Op3:tgtimm));
+) cost 1;
+define instruction sraw semantic as (
+  (transfer Op1:GPR (asr Op2:GPR Op3:GPR));
+) cost 1;
+
+// Special move instructions 
+define instruction mtspr semantic as () cost 10;
+define instruction mtspr semantic as (
+  (transfer LR:SPECIAL Op1:GPR);
+) cost 10;
+
+define instruction mfspr semantic as () cost 10;
+define instruction mfspr semantic as (
+  (transfer Op1:GPR LR:SPECIAL);
+) cost 10;
+
+// Arithmetic 
+define instruction add semantic as (
+  (transfer Op1:GPR (+ Op2:GPR Op3:GPR));
+) cost 1;
+
+define instruction addi semantic as (
+  (transfer Op1:GPR imm:Op2:tgtimm);
+) cost 1;
+define instruction addi semantic as () cost 1;
+define instruction addi semantic as () cost 1;
+define instruction addi semantic as (
+  (transfer Op1:GPR (+ Op2:GPR imm:Op3:tgtimm));
+) cost 1;
+
+define instruction subf semantic as (
+  (transfer Op1:GPR (- Op3:GPR Op2:GPR));
+) cost 1;
+
+define instruction subfic semantic as (
+  (transfer Op1:GPR (- imm:Op3:tgtimm Op2:GPR));
+) cost 1;
+
+define instruction neg semantic as (
+  (transfer Op1:GPR (~ Op2:GPR));
+) cost 1;
+
+define instruction mulli semantic as (
+  (transfer Op1:GPR (* Op2:GPR imm:Op3:tgtimm));
+) cost 10;
+
+define instruction mullw semantic as (
+  (transfer Op1:GPR (* Op2:GPR Op3:GPR));
+) cost 10;
+
+define instruction mulhw semantic as (
+  (transfer Op1:GPR (mulhs Op2:GPR Op3:GPR));
+) cost 10;
+
+define instruction mulhwu semantic as (
+  (transfer Op1:GPR (mulhu Op2:GPR Op3:GPR));
+) cost 10;
+
+// * LOAD/STORE INSTRUCTIONS *
+define instruction lbz semantic as (
+  (transfer Op1:GPR (zext (memref (+ Op3:GPR imm:Op2:tgtimm)) const:num:8));
+) cost 1;
+define instruction lbzx semantic as (
+  (transfer Op1:GPR (zext (memref (+ Op2:GPR Op3:GPR)) const:num:8));
+) cost 1;
+define instruction lhz semantic as (
+  (transfer Op1:GPR (zext (memref (+ Op3:GPR imm:Op2:tgtimm)) const:num:16));
+) cost 1;
+define instruction lhzx semantic as (
+  (transfer Op1:GPR (zext (memref (+ Op2:GPR Op3:GPR)) const:num:16));
+) cost 1;
+define instruction lha semantic as (
+  (transfer Op1:GPR (sext (memref (+ Op3:GPR imm:Op2:tgtimm)) const:num:16));
+) cost 1;
+define instruction lhax semantic as (
+  (transfer Op1:GPR (sext (memref (+ Op2:GPR Op3:GPR)) const:num:16));
+) cost 1;
+define instruction lwz semantic as (
+  (transfer Op1:GPR (memref (+ Op3:GPR imm:Op2:tgtimm)));
+) cost 1;
+define instruction lwzx semantic as (
+  (transfer Op1:GPR (memref (+ Op2:GPR Op3:GPR)));
+) cost 1;
+
+define instruction stb semantic as (
+  (transfer (memref (+ Op3:GPR imm:Op2:tgtimm)) (trunc Op1:GPR const:num:8));
+) cost 1;
+define instruction stbx semantic as (
+  (transfer (memref (+ Op2:GPR Op3:GPR)) (trunc Op1:GPR const:num:8));
+) cost 1;
+define instruction sth semantic as (
+  (transfer (memref (+ Op3:GPR imm:Op2:tgtimm)) (trunc Op1:GPR const:num:16));
+) cost 1;
+define instruction sthx semantic as (
+  (transfer (memref (+ Op2:GPR Op3:GPR)) (trunc Op1:GPR const:num:16));
+) cost 1;
+define instruction stw semantic as (
+  (transfer (memref (+ Op3:GPR imm:Op2:tgtimm)) Op1:GPR);
+) cost 1;
+define instruction stwx semantic as (
+  (transfer (memref (+ Op2:GPR Op3:GPR)) Op1:GPR);
+) cost 1;
+
+define instruction extsb semantic as (
+  (transfer Op1:GPR (sext Op2:GPR const:num:8));
+) cost 1;
+define instruction extsh semantic as (
+  (transfer Op1:GPR (sext Op2:GPR const:num:16));
+) cost 1;
+
+// * BRANCH INSTRUCTIONS AND COMPARISON *
+
+define instruction cmp semantic as (
+  let Op1 = "0" in
+    (transfer CR:SPECIAL (comp Op2:GPR Op3:GPR));
+) cost 1;
+define instruction cmpi semantic as (
+  let Op1 = "0" in
+    (transfer CR:SPECIAL (comp Op2:GPR imm:Op3:tgtimm));
+) cost 1;
+define instruction cmpl semantic as (
+  let Op1 = "0" in
+    (transfer CR:SPECIAL (compu Op2:GPR Op3:GPR));
+) cost 1;
+define instruction cmpli semantic as (
+  let Op1 = "0" in
+    (transfer CR:SPECIAL (compu Op2:GPR imm:Op3:tgtimm));
+) cost 1;
+
+define instruction ba semantic as (  
+  (jump imm:Op1:int);
+) cost 1;
+define instruction bla semantic as (  
+  (call imm:Op1:int);
+) cost 1;
+
+define instruction bclr semantic as (
+  (ret);
+) cost 1;
+    
+    
+define instruction bc semantic as (
+  let Op1 = "12", Op2 = "0" in
+    (cjump const:cond:lt CR:SPECIAL imm:Op3:int);
+  let Op1 = "12", Op2 = "1" in
+    (cjump const:cond:gt CR:SPECIAL imm:Op3:int);  
+  let Op1 = "4", Op2 = "1" in
+    (cjump const:cond:le CR:SPECIAL imm:Op3:int);  
+  let Op1 = "4", Op2 = "0" in
+    (cjump const:cond:ge CR:SPECIAL imm:Op3:int);
+  let Op1 = "4", Op2 = "2" in
+    (cjump const:cond:ne CR:SPECIAL imm:Op3:int);
+  let Op1 = "12", Op2 = "2" in
+    (cjump const:cond:eq CR:SPECIAL imm:Op3:int);  
+) cost 1;
