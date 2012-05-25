@@ -47,6 +47,9 @@
 //#define DEBUG_MODEL
 #include  "ac_debug_model.H"
 
+#define DEFAULT_STACK_SIZE (512 * 1024)
+static int processors_started = 0;
+
 using namespace powerpc_parms;
 
 //Compute CR0 fields LT, GT, EQ, SO
@@ -438,8 +441,8 @@ void ac_behavior( begin )
   dbg_printf("Starting simulator...\n");
   
   /* Here the stack is started in a */
-  GPR.write(1,AC_RAM_END - 1024);
-  
+  // GPR.write(1,AC_RAM_END - 1024);
+  GPR.write(1, AC_RAM_END - 1024 - processors_started++ * DEFAULT_STACK_SIZE);
   /* Make a jump out of memory if it doesn't have an abi */
   LR.write(0xFFFFFFFF);
   
