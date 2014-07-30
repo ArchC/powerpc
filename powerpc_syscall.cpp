@@ -77,10 +77,10 @@ void powerpc_syscall::return_from_syscall()
 {
   unsigned int oldr1;
   unsigned int oldr31;
-  oldr1=MEM.read(GPR.read(1));
-  oldr31=MEM.read(GPR.read(1)+28);
-  GPR.write(1,oldr1);
-  GPR.write(31,oldr31);
+//  oldr1=MEM.read(GPR.read(1));
+//  oldr31=MEM.read(GPR.read(1)+28);
+//  GPR.write(1,oldr1);
+//  GPR.write(31,oldr31);
   ac_pc=LR.read();
 }
 

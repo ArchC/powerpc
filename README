@@ -1,4 +1,4 @@
-This is the POWERPC ArchC 2.1 functional model.
+This is the POWERPC ArchC 2.22functional model.
 
 This model has the system call emulation functions implemented,
 so it is a good idea to turn on the ABI option.
@@ -34,7 +34,17 @@ For more information visit http://www.archc.org
 CHANGELOG:
 ==========
 
+Version 1.0.1:
+
+- Updated syscall emulation to work with new version of libac_sysc
+  (this new version of libac_sysc is used by GCC 4.8 cross compiler and above)
+
+Version 1.0.0:
+
+- ArchC 2.2 compliant
+
 Version 0.7.4:
+
 - Fixed gdb_funcs bug when using ArchC 2.0 or later
 - ArchC 2.1 compliant
 
