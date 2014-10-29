@@ -44,7 +44,7 @@ AC_ARCH(powerpc) {
 	ac_reg CR;
 	ac_reg LR;
 	ac_reg CTR;
-
+        ac_reg id;
 	ARCH_CTOR(powerpc) {	
 		ac_isa("powerpc_isa.ac");
 		set_endian("big");
