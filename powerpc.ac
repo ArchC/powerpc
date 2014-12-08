@@ -22,7 +22,7 @@ AC_ARCH(powerpc) {
 
 	ac_wordsize 32;
 
-	ac_mem MEM:16M;
+	ac_mem MEM:512M;
 	
 	ac_regbank GPR:32;
 
