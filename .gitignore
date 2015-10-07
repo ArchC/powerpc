@@ -1,8 +1,10 @@
-
+Makefile
 Makefile.archc
 main.cpp
 main.cpp.tmpl
 *.o
+*.x
+*.a
 powerpc.H
 powerpc.cpp
 powerpc.x
@@ -17,6 +19,8 @@ powerpc_isa_init.cpp
 powerpc_parms.H
 powerpc_syscall.H
 powerpc_syscall.H.tmpl
+powerpc_ih_bhv_macros.H
+powerpc_intr_handlers.H
 
 
 
