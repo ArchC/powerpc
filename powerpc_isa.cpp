@@ -59,11 +59,9 @@ using namespace powerpc_parms;
 /* if intr_reg == 0, the simulator will be suspended until it receives a         */   
 /* interruption 1                                                                */    
 /*********************************************************************************/
-inline void test_sleep() {
-        if (intr_reg.read() == 0) ac_wait(); 
-    }
+#define test_sleep() { if (intr_reg.read() == 0) ac_wait();  }
 #else
-inline void test_sleep() {}
+#define test_sleep() {}
 #endif
 
 //Compute CR0 fields LT, GT, EQ, SO
