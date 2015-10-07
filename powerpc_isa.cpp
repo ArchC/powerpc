@@ -52,6 +52,20 @@ static int processors_started = 0;
 
 using namespace powerpc_parms;
 
+#ifdef SLEEP_AWAKE_MODE
+/*********************************************************************************/
+/* SLEEP / AWAKE mode control                                                    */
+/* INTR_REG may store 1 (AWAKE MODE) or 0 (SLEEP MODE)                           */
+/* if intr_reg == 0, the simulator will be suspended until it receives a         */   
+/* interruption 1                                                                */    
+/*********************************************************************************/
+inline void test_sleep() {
+        if (intr_reg.read() == 0) ac_wait(); 
+    }
+#else
+inline void test_sleep() {}
+#endif
+
 //Compute CR0 fields LT, GT, EQ, SO
 //XER.SO must be updated by instruction before the use of this routine!
 //Arguments:
@@ -429,6 +443,9 @@ inline void dumpREG(ac_reg<ac_word> &XER, ac_reg<ac_word> &CR, ac_reg<ac_word> &
 //!Generic instruction behavior method.
 void ac_behavior( instruction )
 {
+
+  test_sleep();
+
   dbg_printf("\n program counter=%#x\n",(int)ac_pc);
   ac_pc+=4;
   //dumpGPR();
@@ -443,7 +460,7 @@ void ac_behavior( begin )
   /* Here the stack is started in a */
   // GPR.write(1,AC_RAM_END - 1024);
   GPR.write(1, AC_RAM_END - 1024 - processors_started++ * DEFAULT_STACK_SIZE);
-  /* Make a jump out of memory if it doesn't have an abi */
+  /* Make a jump out of DC_portory if it doesn't have an abi */
   LR.write(0xFFFFFFFF);
   
 }
@@ -1492,7 +1509,7 @@ void ac_behavior( lbz )
   else
     ea=(short int)d;
  
-  GPR.write(rt,(unsigned int)MEM.read_byte(ea));
+  GPR.write(rt,(unsigned int)DATA_PORT->read_byte(ea));
   
 };
 
@@ -1506,7 +1523,7 @@ void ac_behavior( lbzu )
   ea=GPR.read(ra)+(short int)d;
   
   GPR.write(ra,ea);
-  GPR.write(rt,(unsigned int)MEM.read_byte(ea));
+  GPR.write(rt,(unsigned int)DATA_PORT->read_byte(ea));
   
 };
 
@@ -1520,7 +1537,7 @@ void ac_behavior( lbzux )
   ea=GPR.read(ra)+GPR.read(rb);
   
   GPR.write(ra,ea);
-  GPR.write(rt,(unsigned int)MEM.read_byte(ea));
+  GPR.write(rt,(unsigned int)DATA_PORT->read_byte(ea));
   
 };
 
@@ -1536,7 +1553,7 @@ void ac_behavior( lbzx )
   else
     ea=GPR.read(rb);
 
-  GPR.write(rt,(unsigned int)MEM.read_byte(ea));
+  GPR.write(rt,(unsigned int)DATA_PORT->read_byte(ea));
   
 };
 
@@ -1552,7 +1569,7 @@ void ac_behavior( lha )
   else
     ea=(short int)d;
  
-  GPR.write(rt,(short int)MEM.read_half(ea));
+  GPR.write(rt,(short int)DATA_PORT->read_half(ea));
   
 };
 
@@ -1564,7 +1581,7 @@ void ac_behavior( lhau )
   int ea=GPR.read(ra)+(short int)d;
 
   GPR.write(ra,ea);
-  GPR.write(rt,(short int)MEM.read_half(ea));
+  GPR.write(rt,(short int)DATA_PORT->read_half(ea));
   
 };
 
@@ -1576,7 +1593,7 @@ void ac_behavior( lhaux )
   int ea=GPR.read(ra)+GPR.read(rb);
 
   GPR.write(ra,ea);
-  GPR.write(rt,(short int)MEM.read_half(ea));
+  GPR.write(rt,(short int)DATA_PORT->read_half(ea));
   
 };
 
@@ -1592,7 +1609,7 @@ void ac_behavior( lhax )
   else
     ea=GPR.read(rb);
 
-  GPR.write(rt,(short int)MEM.read_half(ea));
+  GPR.write(rt,(short int)DATA_PORT->read_half(ea));
   
 };
 
@@ -1608,7 +1625,7 @@ void ac_behavior( lhbrx )
   else
     ea=GPR.read(rb);
 
-  GPR.write(rt,(((int)(MEM.read_byte(ea+1)) & 0x000000FF)<<8) | ((int)(MEM.read_byte(ea)) & 0x000000FF));
+  GPR.write(rt,(((int)(DATA_PORT->read_byte(ea+1)) & 0x000000FF)<<8) | ((int)(DATA_PORT->read_byte(ea)) & 0x000000FF));
 
 };
 
@@ -1624,7 +1641,7 @@ void ac_behavior( lhz )
   else
     ea=(short int)d;
 
-  GPR.write(rt,(unsigned short int)MEM.read_half(ea));
+  GPR.write(rt,(unsigned short int)DATA_PORT->read_half(ea));
 
 };
 
@@ -1636,7 +1653,7 @@ void ac_behavior( lhzu )
   int ea=GPR.read(ra)+(short int)d;
   
   GPR.write(ra,ea);
-  GPR.write(rt,(unsigned short int)MEM.read_half(ea));
+  GPR.write(rt,(unsigned short int)DATA_PORT->read_half(ea));
 
 };
 
@@ -1648,7 +1665,7 @@ void ac_behavior( lhzux )
   int ea=GPR.read(ra)+GPR.read(rb);
 
   GPR.write(ra,ea);
-  GPR.write(rt,(unsigned short int)MEM.read_half(ea));
+  GPR.write(rt,(unsigned short int)DATA_PORT->read_half(ea));
 
 };
 
@@ -1664,7 +1681,7 @@ void ac_behavior( lhzx )
   else
     ea=GPR.read(rb);
 
-  GPR.write(rt,(unsigned short int)MEM.read_half(ea));
+  GPR.write(rt,(unsigned short int)DATA_PORT->read_half(ea));
   
 };
 
@@ -1685,7 +1702,7 @@ void ac_behavior( lmw )
 
   while(r<=31) {
     if((r!=ra)||(r==31))
-      GPR.write(r,MEM.read(ea));
+      GPR.write(r,DATA_PORT->read(ea));
     r=r+1;
     ea=ea+4;
   }
@@ -1729,7 +1746,7 @@ void ac_behavior( lswi )
       masc=0xFF000000>>i;
       masc=~masc;
       GPR.write(r,(GPR.read(r) & masc));
-      GPR.write(r,(((unsigned int)MEM.read_byte(ea)) << (24-i)) | GPR.read(r));
+      GPR.write(r,(((unsigned int)DATA_PORT->read_byte(ea)) << (24-i)) | GPR.read(r));
     }
     i=i+8;
     if(i==32)
@@ -1773,7 +1790,7 @@ void ac_behavior( lswx )
       masc=0xFF000000>>i;
       masc=~masc;
       GPR.write(r,(GPR.read(r) & masc));
-      GPR.write(r,(((unsigned int)MEM.read_byte(ea)) << (24-i)) | GPR.read(r));
+      GPR.write(r,(((unsigned int)DATA_PORT->read_byte(ea)) << (24-i)) | GPR.read(r));
     }
     i=i+8;
     if(i==32)
@@ -1797,10 +1814,10 @@ void ac_behavior( lwbrx )
   else
     ea=GPR.read(rb);
 
-  GPR.write(rt,(((unsigned int)MEM.read_byte(ea+3) & 0x000000FF) << 24) | 
-	    (((unsigned int)MEM.read_byte(ea+2) & 0x000000FF) << 16) | 
-	    (((unsigned int)MEM.read_byte(ea+1) & 0x000000FF) << 8) | 
-	    ((unsigned int)MEM.read_byte(ea) & 0x000000FF));
+  GPR.write(rt,(((unsigned int)DATA_PORT->read_byte(ea+3) & 0x000000FF) << 24) | 
+	    (((unsigned int)DATA_PORT->read_byte(ea+2) & 0x000000FF) << 16) | 
+	    (((unsigned int)DATA_PORT->read_byte(ea+1) & 0x000000FF) << 8) | 
+	    ((unsigned int)DATA_PORT->read_byte(ea) & 0x000000FF));
 
 };
 
@@ -1816,7 +1833,7 @@ void ac_behavior( lwz )
   else
     ea=(short int)d;
 
-  GPR.write(rt,MEM.read(ea));
+  GPR.write(rt,DATA_PORT->read(ea));
 
 };
 
@@ -1828,7 +1845,7 @@ void ac_behavior( lwzu )
   int ea=GPR.read(ra)+(short int)d;
  
   GPR.write(ra,ea);
-  GPR.write(rt,MEM.read(ea));
+  GPR.write(rt,DATA_PORT->read(ea));
 
 };
 
@@ -1840,7 +1857,7 @@ void ac_behavior( lwzux )
   int ea=GPR.read(ra)+GPR.read(rb);
 
   GPR.write(ra,ea);
-  GPR.write(rt,MEM.read(ea));
+  GPR.write(rt,DATA_PORT->read(ea));
 
 };
 
@@ -1856,7 +1873,7 @@ void ac_behavior( lwzx )
   else
     ea=GPR.read(rb);
 
-  GPR.write(rt,MEM.read(ea));
+  GPR.write(rt,DATA_PORT->read(ea));
   
 };
 
@@ -2741,7 +2758,7 @@ void ac_behavior( stb )
   else
     ea=(short int)d;
  
-  MEM.write_byte(ea,(unsigned char)GPR.read(rs));
+  DATA_PORT->write_byte(ea,(unsigned char)GPR.read(rs));
     
 };
 
@@ -2752,7 +2769,7 @@ void ac_behavior( stbu )
   
   int ea=GPR.read(ra)+(short int)d;
  
-  MEM.write_byte(ea,(unsigned char)GPR.read(rs));
+  DATA_PORT->write_byte(ea,(unsigned char)GPR.read(rs));
   GPR.write(ra,ea);
     
 };
@@ -2764,7 +2781,7 @@ void ac_behavior( stbux )
   
   int ea=GPR.read(ra)+GPR.read(rb);
  
-  MEM.write_byte(ea,(unsigned char)GPR.read(rs));
+  DATA_PORT->write_byte(ea,(unsigned char)GPR.read(rs));
   GPR.write(ra,ea);
     
 };
@@ -2781,7 +2798,7 @@ void ac_behavior( stbx )
   else
     ea=GPR.read(rb);
   
-  MEM.write_byte(ea,(unsigned char)GPR.read(rs));
+  DATA_PORT->write_byte(ea,(unsigned char)GPR.read(rs));
    
 };
 
@@ -2797,7 +2814,7 @@ void ac_behavior( sth )
   else
     ea=(short int)d;
  
-  MEM.write_half(ea,(unsigned short int)GPR.read(rs));
+  DATA_PORT->write_half(ea,(unsigned short int)GPR.read(rs));
     
 };
 
@@ -2813,7 +2830,7 @@ void ac_behavior( sthbrx )
   else
     ea=GPR.read(rb);
   
-  MEM.write_half(ea,(unsigned short int)
+  DATA_PORT->write_half(ea,(unsigned short int)
 		 ( ((GPR.read(rs) & 0x000000FF) << 8) | 
 		   ((GPR.read(rs) & 0x0000FF00) >> 8) ));
    
@@ -2826,7 +2843,7 @@ void ac_behavior( sthu )
   
   int ea=GPR.read(ra)+(short int)d;
  
-  MEM.write_half(ea,(unsigned short int)GPR.read(rs));
+  DATA_PORT->write_half(ea,(unsigned short int)GPR.read(rs));
   GPR.write(ra,ea);
     
 };
@@ -2838,7 +2855,7 @@ void ac_behavior( sthux )
   
   int ea=GPR.read(ra)+GPR.read(rb);
  
-  MEM.write_half(ea,(unsigned short int)GPR.read(rs));
+  DATA_PORT->write_half(ea,(unsigned short int)GPR.read(rs));
   GPR.write(ra,ea);
     
 };
@@ -2855,7 +2872,7 @@ void ac_behavior( sthx )
   else
     ea=GPR.read(rb);
   
-  MEM.write_half(ea,(unsigned short int)GPR.read(rs));
+  DATA_PORT->write_half(ea,(unsigned short int)GPR.read(rs));
     
 };
 
@@ -2875,7 +2892,7 @@ void ac_behavior( stmw )
   r=rs;
   
   while(r<=31) {
-    MEM.write(ea,GPR.read(r));
+    DATA_PORT->write(ea,GPR.read(r));
     r+=1;
     ea+=4;
   }
@@ -2911,7 +2928,7 @@ void ac_behavior( stswi )
     if(r==32)
       r=0; 
     masc=mask32rlw(i,i+7);
-    MEM.write_byte(ea,(unsigned char)((GPR.read(r) & masc) >> (24-i)));
+    DATA_PORT->write_byte(ea,(unsigned char)((GPR.read(r) & masc) >> (24-i)));
     i=i+8;
     if(i==32)
       i=0;
@@ -2947,7 +2964,7 @@ void ac_behavior( stswx )
     if(r==32)
       r=0; 
     masc=mask32rlw(i,i+7);
-    MEM.write_byte(ea,(unsigned char)((GPR.read(r) & masc) >> (24-i)));
+    DATA_PORT->write_byte(ea,(unsigned char)((GPR.read(r) & masc) >> (24-i)));
     i=i+8;
     if(i==32)
       i=0;
@@ -2969,7 +2986,7 @@ void ac_behavior( stw )
   else
     ea=(short int)d;
 
-  MEM.write(ea,(unsigned int)GPR.read(rs));
+  DATA_PORT->write(ea,(unsigned int)GPR.read(rs));
     
 };
 
@@ -2985,7 +3002,7 @@ void ac_behavior( stwbrx )
   else
     ea=GPR.read(rb);
 
-  MEM.write(ea,(((GPR.read(rs) & 0x000000FF) << 24)  |
+  DATA_PORT->write(ea,(((GPR.read(rs) & 0x000000FF) << 24)  |
 		((GPR.read(rs) & 0x0000FF00) << 16 ) |
 		((GPR.read(rs) & 0x00FF0000) << 8 ) |
 		(GPR.read(rs) & 0xFF000000)));
@@ -3000,7 +3017,7 @@ void ac_behavior( stwu )
   
   int ea=GPR.read(ra)+(short int)d;
 
-  MEM.write(ea,(unsigned int)GPR.read(rs));
+  DATA_PORT->write(ea,(unsigned int)GPR.read(rs));
   GPR.write(ra,ea);
     
 };
@@ -3012,7 +3029,7 @@ void ac_behavior( stwux )
   
   int ea=GPR.read(ra)+GPR.read(rb);
  
-  MEM.write(ea,GPR.read(rs));
+  DATA_PORT->write(ea,GPR.read(rs));
   GPR.write(ra,ea);
     
 };
@@ -3029,7 +3046,7 @@ void ac_behavior( stwx )
   else
     ea=GPR.read(rb);
   
-  MEM.write(ea,(unsigned int)GPR.read(rs));
+  DATA_PORT->write(ea,(unsigned int)GPR.read(rs));
    
 };
 
