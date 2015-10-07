@@ -203,298 +203,388 @@ AC_ISA(powerpc) {
 
     add.set_asm("add %reg, %reg, %reg", rt, ra, rb);
     add.set_decoder(opcd=31, oe=0, xos=266, rc=0);
+    add.set_cycles(1);
 
     add_.set_asm("add. %reg, %reg, %reg", rt, ra, rb);
     add_.set_decoder(opcd=31, oe=0, xos=266, rc=1);
+    add_.set_cycles(1);
 
     addo.set_asm("addo %reg, %reg, %reg", rt, ra, rb);
     addo.set_decoder(opcd=31, oe=1, xos=266, rc=0);
-
+    addo.set_cycles(1);
+    
     addo_.set_asm("addo. %reg, %reg, %reg", rt, ra, rb);
     addo_.set_decoder(opcd=31, oe=1, xos=266, rc=1);
-
+    addo_.set_cycles(1);
+    
     addc.set_asm("addc %reg, %reg, %reg", rt, ra, rb);
     addc.set_decoder(opcd=31, oe=0, xos=10, rc=0);
+    addc.set_cycles(1);
 
     addc_.set_asm("addc. %reg, %reg, %reg", rt, ra, rb);
     addc_.set_decoder(opcd=31, oe=0, xos=10, rc=1);
+    addc_.set_cycles(1);
 
     addco.set_asm("addco %reg, %reg, %reg", rt, ra, rb);
     addco.set_decoder(opcd=31, oe=1, xos=10, rc=0);
+    addco.set_cycles(1);
 
     addco_.set_asm("addco. %reg, %reg, %reg", rt, ra, rb);
     addco_.set_decoder(opcd=31, oe=1, xos=10, rc=1);
+    addco_.set_cycles(1);
 
     adde.set_asm("adde %reg, %reg, %reg", rt, ra, rb);
     adde.set_decoder(opcd=31, oe=0, xos=138, rc=0);
+    adde.set_cycles(1);
 
     adde_.set_asm("adde. %reg, %reg, %reg", rt, ra, rb);
     adde_.set_decoder(opcd=31, oe=0, xos=138, rc=1);
+    adde_.set_cycles(1);
 
     addeo.set_asm("addeo %reg, %reg, %reg", rt, ra, rb);
     addeo.set_decoder(opcd=31, oe=1, xos=138, rc=0);
+    addeo.set_cycles(1);
 
     addeo_.set_asm("addeo. %reg, %reg, %reg", rt, ra, rb);
     addeo_.set_decoder(opcd=31, oe=1, xos=138, rc=1);
+    addeo_.set_cycles(1);
 
     addi.set_asm("li %reg, %exp", rt, ra=0, d);
     addi.set_asm("li %reg, %exp(carry)@ha", rt, ra=0, d);
     addi.set_asm("la %reg, %exp@l(%imm)", rt, d, ra );
     addi.set_asm("addi %reg, %reg, %exp", rt, ra, d);
     addi.set_decoder(opcd=14);
-
+    addi.set_cycles(1);
+    
     addic.set_asm("addic %reg, %reg, %exp", rt, ra, d);
     addic.set_decoder(opcd=12);
-
+   addic.set_cycles(1);
+    
     addic_.set_asm("addic. %reg, %reg, %exp", rt, ra, d);
     addic_.set_decoder(opcd=13);
+    addic_.set_cycles(1);
 
     addis.set_asm("lis %reg, %exp", rt, ra=0, d);
     addis.set_asm("lis %reg, %exp(carry)@ha", rt, ra=0, d);
     addis.set_asm("addis %reg, %reg, %exp", rt, ra, d);
     addis.set_decoder(opcd=15);
+    addis.set_cycles(1);
 
     addme.set_asm("addme %reg, %reg", rt, ra);
     addme.set_decoder(opcd=31, oe=0, xos=234, rc=0);
+    addme.set_cycles(1);
 
     addme_.set_asm("addme. %reg, %reg", rt, ra);
     addme_.set_decoder(opcd=31, oe=0, xos=234, rc=1);
-
+    addme_.set_cycles(1);
+    
     addmeo.set_asm("addmeo %reg, %reg", rt, ra);
     addmeo.set_decoder(opcd=31, oe=1, xos=234, rc=0);
-
+    addmeo.set_cycles(1);
+    
     addmeo_.set_asm("addmeo. %reg, %reg", rt, ra);
     addmeo_.set_decoder(opcd=31, oe=1, xos=234, rc=1);
-
+    addmeo_.set_cycles(1);
+    
     addze.set_asm("addze %reg, %reg", rt, ra);
     addze.set_decoder(opcd=31, oe=0, xos=202, rc=0);
-
+  addze.set_cycles(1);
+    
     addze_.set_asm("addze. %reg, %reg", rt, ra);
     addze_.set_decoder(opcd=31, oe=0, xos=202, rc=1);
-
+    addze_.set_cycles(1);
+    
     addzeo.set_asm("addzeo %reg, %reg", rt, ra);
     addzeo.set_decoder(opcd=31, oe=1, xos=202, rc=0);
-
+    addzeo.set_cycles(1);
+    
     addzeo_.set_asm("addzeo. %reg, %reg", rt, ra);
     addzeo_.set_decoder(opcd=31, oe=1, xos=202, rc=1);
-
+    addzeo_.set_cycles(1);
+    
     ande.set_asm("and %reg, %reg, %reg", ra, rs, rb);
     ande.set_decoder(opcd=31, xog=28, rc=0);
-
+    ande.set_cycles(1);
+    
     ande_.set_asm("and. %reg, %reg, %reg", ra, rs, rb);
     ande_.set_decoder(opcd=31, xog=28, rc=1);
-
+    ande_.set_cycles(1);
+    
     andc.set_asm("andc %reg, %reg, %reg", ra, rs, rb);
     andc.set_decoder(opcd=31, xog=60, rc=0);
-
+    andc.set_cycles(1);
+   
     andc_.set_asm("andc. %reg, %reg, %reg", ra, rs, rb);
     andc_.set_decoder(opcd=31, xog=60, rc=1);
-
+    andc_.set_cycles(1);
+    
     andi_.set_asm("andi. %reg, %reg, %imm", ra, rs, ui);
     andi_.set_decoder(opcd=28);
-
+    andi_.set_cycles(1);
+    
     andis_.set_asm("andis. %reg, %reg, %imm", ra, rs, ui);
     andis_.set_decoder(opcd=29);
-
+    andis_.set_cycles(1);
+    
     b.set_asm("b %addr(pcrel)", li);
     b.set_decoder(opcd=18, aa=0, lk=0);
-
+    b.set_cycles(1);
+    
     ba.set_asm("ba %addr(pcrel)", li);
     ba.set_decoder(opcd=18, aa=1, lk=0);
 
+    ba.set_cycles(1);    
+    
     bl.set_asm("bl %addr(pcrel)", li);
     bl.set_decoder(opcd=18, aa=0, lk=1);
-
+    bl.set_cycles(1); 
+    
     bla.set_asm("bla %addr(pcrel)", li);
     bla.set_decoder(opcd=18, aa=1, lk=1);
-
+    bla.set_cycles(1); 
+    
     bc.set_asm("bc %imm, %exp, %addr(pcrel)", bo, bi, bd);
     bc.set_decoder(opcd=16, aa=0, lk=0);
-
+    bc.set_cycles(1); 
+    
     bca.set_asm("bca %imm, %exp, %addr(pcrel)", bo, bi, bd);
     bca.set_decoder(opcd=16, aa=1, lk=0);
-
+    bca.set_cycles(1); 
+    
     bcl.set_asm("bcl %imm, %exp, %addr(pcrel)", bo, bi, bd);
     bcl.set_decoder(opcd=16, aa=0, lk=1);
-
+    bcl.set_cycles(1); 
+    
     bcla.set_asm("bcla %imm, %exp, %addr(pcrel)", bo, bi, bd);
     bcla.set_decoder(opcd=16, aa=1, lk=1);
-
+    bcla.set_cycles(1); 
+    
     bcctr.set_asm("bctr", bo=0x14, bi=0, bh=0);
     bcctr.set_asm("bcctr %reg, %reg, %reg", bo, bi, bh);
     bcctr.set_decoder(opcd=19, xog=528, lk=0);
-
+    bcctr.set_cycles(1); 
+    
     bcctrl.set_asm("bctrl", bo=0x14, bi=0, bh=0);
     bcctrl.set_asm("bcctrl %reg, %reg, %reg", bo, bi, bh);
     bcctrl.set_decoder(opcd=19, xog=528, lk=1);
-
+    bcctrl.set_cycles(1); 
+    
     bclr.set_asm("blr", bo=0x14, bi=0, bh=0);
     bclr.set_asm("bclr %reg, %reg, %reg", bo, bi, bh);
     bclr.set_decoder(opcd=19, xog=16, lk=0);
-
+    bclr.set_cycles(1); 
+    
     bclrl.set_asm("bclrl %reg, %reg, %reg", bo, bi, bh);
     bclrl.set_decoder(opcd=19, xog=16, lk=1);
-
+    bclrl.set_cycles(1); 
+    
     cmp.set_asm("cmpw %imm, %imm, %imm", bf, ra, rb, l=0);
     cmp.set_asm("cmp %imm, %imm, %reg, %reg", bf, l, ra, rb);
     cmp.set_decoder(opcd=31, l=0, xog=0);
-
+    cmp.set_cycles(1); 
+    
     cmpi.set_asm("cmpwi %imm, %reg, %imm", bf, ra, si, l=0);
     cmpi.set_asm("cmpi %reg, %imm, %reg, %imm", bf, l, ra, si);
     cmpi.set_decoder(opcd=11, l=0);
-
+    cmpi.set_cycles(1); 
+    
     cmpl.set_asm("cmplw %reg, %reg, %reg", bf, ra, rb, l=0);
     cmpl.set_asm("cmpl %imm, %imm, %reg, %reg", bf, l, ra, rb);
     cmpl.set_decoder(opcd=31, l=0, xog=32);
-
+    cmpl.set_cycles(1); 
+    
     cmpli.set_asm("cmplwi %reg, %reg, %imm", bf, ra, ui, l=0);
     cmpli.set_asm("cmpli %reg, %imm, %reg, %imm", bf, l, ra, ui);
     cmpli.set_decoder(opcd=10, l=0);
-
+    cmpli.set_cycles(1); 
     cntlzw.set_asm("cntlzw %reg, %reg", ra, rs);
+    
     cntlzw.set_decoder(opcd=31, xog=26, rc=0);
-
+    cntlzw.set_cycles(1); 
     cntlzw_.set_asm("cntlzw. %reg, %reg", ra, rs);
     cntlzw_.set_decoder(opcd=31, xog=26, rc=1);
-
+    cntlzw_.set_cycles(1); 
+    
     crand.set_asm("crand %reg, %reg, %reg", bt, ba, bb);
     crand.set_decoder(opcd=19, xog=257);
+    crand.set_cycles(1); 
 
     crandc.set_asm("crandc %reg, %reg, %reg", bt, ba, bb);
     crandc.set_decoder(opcd=19, xog=129);
+    crandc.set_cycles(1); 
 
     creqv.set_asm("creqv %reg, %reg, %reg", bt, ba, bb);
     creqv.set_decoder(opcd=19, xog=289);
-
+    creqv.set_cycles(1); 
+    
     crnand.set_asm("crnand %reg, %reg, %reg", bt, ba, bb);
     crnand.set_decoder(opcd=19, xog=225);
+    crnand.set_cycles(1); 
 
     crnor.set_asm("crnor %reg, %reg, %reg", bt, ba, bb);
     crnor.set_decoder(opcd=19, xog=33);
+    crnor.set_cycles(1); 
 
     cror.set_asm("cror %reg, %reg, %reg", bt, ba, bb);
     cror.set_decoder(opcd=19, xog=449);
+    cror.set_cycles(1);
 
     crorc.set_asm("crorc %reg, %reg, %reg", bt, ba, bb);
     crorc.set_decoder(opcd=19, xog=417);
+    crorc.set_cycles(1);
 
     crxor.set_asm("crxor %reg, %reg, %reg", bt, ba, bb);
     crxor.set_decoder(opcd=19, xog=193);
+    crxor.set_cycles(1);
 
     divw.set_asm("divw %reg, %reg, %reg", rt, ra, rb);
     divw.set_decoder(opcd=31, xos=491, oe=0, rc=0);
+    divw.set_cycles(1); 
 
     divw_.set_asm("divw. %reg, %reg, %reg", rt, ra, rb);
     divw_.set_decoder(opcd=31, xos=491, oe=0, rc=1);
+    divw_.set_cycles(1); 
 
     divwo.set_asm("divwo %reg, %reg, %reg", rt, ra, rb);
     divwo.set_decoder(opcd=31, xos=491, oe=1, rc=0);
+    divwo.set_cycles(1); 
 
     divwo_.set_asm("divwo. %reg, %reg, %reg", rt, ra, rb);
     divwo_.set_decoder(opcd=31, xos=491, oe=1, rc=1);
+    divwo_.set_cycles(1); 
 
     divwu.set_asm("divwu %reg, %reg, %reg", rt, ra, rb);
     divwu.set_decoder(opcd=31, xos=459, oe=0, rc=0);
+    divwu.set_cycles(1); 
 
     divwu_.set_asm("divwu. %reg, %reg, %reg", rt, ra, rb);
     divwu_.set_decoder(opcd=31, xos=459, oe=0, rc=1);
+    divwu_.set_cycles(1);
 
     divwou.set_asm("divwou %reg, %reg, %reg", rt, ra, rb);
     divwou.set_decoder(opcd=31, xos=459, oe=1, rc=0);
+    divwou.set_cycles(1); 
 
     divwou_.set_asm("divwou. %reg, %reg, %reg", rt, ra, rb);
     divwou_.set_decoder(opcd=31, xos=459, oe=1, rc=1);
+    divwou_.set_cycles(1); 
 
     eqv.set_asm("eqv %reg, %reg, %reg", ra, rs, rb);
     eqv.set_decoder(opcd=31, xog=284, rc=0);
+    eqv.set_cycles(1); 
 
     eqv_.set_asm("eqv. %reg, %reg, %reg", ra, rs, rb);
     eqv_.set_decoder(opcd=31, xog=284, rc=1);
+    eqv_.set_cycles(1); 
 
     extsb.set_asm("extsb %reg, %reg", ra, rs);
     extsb.set_decoder(opcd=31, xog=954, rc=0);
+    extsb.set_cycles(1); 
 
     extsb_.set_asm("extsb. %reg, %reg", ra, rs);
     extsb_.set_decoder(opcd=31, xog=954, rc=1);
+    extsb_.set_cycles(1); 
 
     extsh.set_asm("extsh %reg, %reg", ra, rs);
     extsh.set_decoder(opcd=31, xog=922, rc=0);
+    extsh.set_cycles(1); 
 
     extsh_.set_asm("extsh. %reg, %reg", ra, rs);
     extsh_.set_decoder(opcd=31, xog=922, rc=1);
+    extsh_.set_cycles(1); 
 
     lbz.set_asm("lbz %reg, %imm (%reg)", rt, d, ra);
     lbz.set_asm("lbz %reg, %exp@l(%reg)", rt, d, ra);
     lbz.set_decoder(opcd=34);
+    lbz.set_cycles(1); 
 
     lbzu.set_asm("lbzu %reg, %imm (%reg)", rt, d, ra);
     lbzu.set_asm("lbzu %reg, %exp@l(%reg)", rt, d, ra);
     lbzu.set_decoder(opcd=35);
+    lbzu.set_cycles(1); 
 
     lbzux.set_asm("lbzux %reg, %reg, %reg", rt, ra, rb);
     lbzux.set_decoder(opcd=31, xog=119);
+    lbzux.set_cycles(1); 
 
     lbzx.set_asm("lbzx %reg, %reg, %reg", rt, ra, rb);
     lbzx.set_decoder(opcd=31, xog=87);
+    lbzx.set_cycles(1); 
 
     lha.set_asm("lha %reg, %imm (%reg)", rt, d, ra);
     lha.set_asm("lha %reg, %exp@l(%reg)", rt, d, ra);
     lha.set_decoder(opcd=42);
+    lha.set_cycles(1); 
 
     lhau.set_asm("lhau %reg, %imm (%reg)", rt, d, ra);
     lhau.set_asm("lhau %reg, %exp@l(%reg)", rt, d, ra);
     lhau.set_decoder(opcd=43);
+    lhau.set_cycles(1); 
 
     lhaux.set_asm("lhaux %reg, %reg, %reg", rt, ra, rb);
     lhaux.set_decoder(opcd=31, xog=375);
+    lhaux.set_cycles(1); 
 
     lhax.set_asm("lhax %reg, %reg, %reg", rt, ra, rb);
     lhax.set_decoder(opcd=31, xog=343);
+    lhax.set_cycles(1); 
 
     lhbrx.set_asm("lhbrx %reg, %reg, %reg", rt, ra, rb);
     lhbrx.set_decoder(opcd=31, xog=790);
+    lhbrx.set_cycles(1); 
 
     lhz.set_asm("lhz %reg, %imm (%reg)", rt, d, ra);
     lhz.set_asm("lhz %reg, %exp@l(%reg)", rt, d, ra);
     lhz.set_decoder(opcd=40);
+   lhz.set_cycles(1); 
 
     lhzu.set_asm("lhzu %reg, %imm (%reg)", rt, d, ra);
     lhzu.set_asm("lhzu %reg, %exp@l(%reg)", rt, d, ra);
     lhzu.set_decoder(opcd=41);
+    lhzu.set_cycles(1); 
 
     lhzux.set_asm("lhzux %reg, %reg, %reg", rt, ra, rb);
     lhzux.set_decoder(opcd=31, xog=311);
+    lhzux.set_cycles(1); 
 
     lhzx.set_asm("lhzx %reg, %reg, %reg", rt, ra, rb);
     lhzx.set_decoder(opcd=31, xog=279);
+    lhzx.set_cycles(1); 
 
     lmw.set_asm("lmw %reg, %imm (%reg)", rt, d, ra);
     lmw.set_asm("lmw %reg, %exp@l(%reg)", rt, d, ra);
     lmw.set_decoder(opcd=46);
+    lmw.set_cycles(1); 
 
     lswi.set_asm("lswi %imm, %imm, %imm", rt, ra, nb);
     lswi.set_decoder(opcd=31, xog=597);
+    lswi.set_cycles(1); 
 
     lswx.set_asm("lswx %reg, %reg, %reg", rt, ra, rb);
     lswx.set_decoder(opcd=31, xog=533);
+    lswx.set_cycles(1); 
 
     lwbrx.set_asm("lwbrx %reg, %reg, %reg", rt, ra, rb);
     lwbrx.set_decoder(opcd=31, xog=534);
+    lwbrx.set_cycles(1);
 
     lwz.set_asm("lwz %imm, %imm (%imm)", rt, d, ra);
-    lwz.set_asm("lwz %imm, %exp@l(%imm)", rt, d, ra);
+    //lwz.set_asm("lba.set_cycles(1); wz %imm, %exp@l(%imm)", rt, d, ra);
     lwz.set_decoder(opcd=32);
+    lwz.set_cycles(1); 
 
     lwzu.set_asm("lwzu %reg, %imm (%reg)", rt, d, ra);
     lwzu.set_asm("lwzu %reg, %exp@l(%reg)", rt, d, ra);
     lwzu.set_decoder(opcd=33);
+    lwzu.set_cycles(1); 
 
     lwzux.set_asm("lwzux %reg, %reg, %reg", rt, ra, rb);
     lwzux.set_decoder(opcd=31, xog=55);
+    lwzux.set_cycles(1); 
 
     lwzx.set_asm("lwzx %reg, %reg, %reg", rt, ra, rb);
     lwzx.set_decoder(opcd=31, xog=23);
-
+    lwzx.set_cycles(1); 
 
     /* BEGIN NOT IMPLEMENTED! 405 Family! */
 //    macchw.set_asm("macchw %rt, %ra, %rb");
@@ -645,21 +735,26 @@ AC_ISA(powerpc) {
 
     mcrf.set_asm("mcrf %imm, %imm", bf, bfa);
     mcrf.set_decoder(opcd=19, xog=0);
+    mcrf.set_cycles(1); 
 
     mcrxr.set_asm("mcrxr %imm", bf);
     mcrxr.set_decoder(opcd=31, xog=512);
+    mcrxr.set_cycles(1); 
 
     mfcr.set_asm("mfcr %imm", rt);
     mfcr.set_decoder(opcd=31, xog=19);
+   mfcr.set_cycles(1); 
 
     /* INCOMPLETE IMPLEMENTATION! */
     mfspr.set_asm("mfctr %imm", rt, sprf=0x120);
     mfspr.set_asm("mflr %imm", rt, sprf=0x100);
     mfspr.set_asm("mfspr %imm, %imm", rt, sprf);
     mfspr.set_decoder(opcd=31, xog=339);
+    mfspr.set_cycles(1);
 
     mtcrf.set_asm("mtcrf %imm, %imm", xfm, rs);
     mtcrf.set_decoder(opcd=31, xog=144);
+    mtcrf.set_cycles(1); 
 
     /* INCOMPLETE IMPLEMENTATION! */
     mtspr.set_asm("mtctr %imm", rs, sprf=0x120);
@@ -801,206 +896,271 @@ AC_ISA(powerpc) {
 
     nor.set_asm("nor %reg, %reg, %reg", ra, rs, rb);
     nor.set_decoder(opcd=31, xog=124, rc=0);
+    nor.set_cycles(1); 
 
     nor_.set_asm("nor. %reg, %reg, %reg", ra, rs, rb);
     nor_.set_decoder(opcd=31, xog=124, rc=1);
+    nor_.set_cycles(1); 
 
     ore.set_asm("or %reg, %reg, %reg", ra, rs, rb);
     ore.set_decoder(opcd=31, xog=444, rc=0);
+    ore.set_cycles(1); 
 
     ore_.set_asm("or. %reg, %reg, %reg", ra, rs, rb);
     ore_.set_decoder(opcd=31, xog=444, rc=1);
+    ore_.set_cycles(1); 
 
     orc.set_asm("orc %reg, %reg, %reg", ra, rs, rb);
     orc.set_decoder(opcd=31, xog=412, rc=0);
+    orc.set_cycles(1); 
 
     orc_.set_asm("orc. %reg, %reg, %reg", ra, rs, rb);
     orc_.set_decoder(opcd=31, xog=412, rc=1);
+    orc_.set_cycles(1); 
 
     ori.set_asm("ori %reg, %reg, %imm", ra, rs, ui);
     ori.set_decoder(opcd=24);
+    ori.set_cycles(1); 
 
     oris.set_asm("oris %reg, %reg, %imm", ra, rs, ui);
     oris.set_decoder(opcd=25);
+    oris.set_cycles(1); 
 
     rlwimi.set_asm("rlwimi %reg, %reg, %exp, %imm, %exp", ra, rs, sh, mb, me);
     rlwimi.set_decoder(opcd=20, rc=0);
+    rlwimi.set_cycles(1); 
 
     rlwimi_.set_asm("rlwimi. %reg, %reg, %exp, %imm, %exp", ra, rs, sh, mb, me);
     rlwimi_.set_decoder(opcd=20,rc=1);
+    rlwimi_.set_cycles(1); 
 
     rlwinm.set_asm("rlwinm %reg, %reg, %exp, %imm, %exp", ra, rs, sh, mb, me);
     rlwinm.set_decoder(opcd=21, rc=0);
+    rlwinm.set_cycles(1); 
 
     rlwinm_.set_asm("rlwinm. %reg, %reg, %exp, %imm, %exp", ra, rs, sh, mb, me);
     rlwinm_.set_decoder(opcd=21,rc=1);
+    rlwinm_.set_cycles(1); 
 
     rlwnm.set_asm("rlwnm %imm, %imm, %imm, %imm, %imm", ra, rs, rb, mb, me);
     rlwnm.set_decoder(opcd=23, rc=0);
+    rlwnm.set_cycles(1); 
 
     rlwnm_.set_asm("rlwnm. %imm, %imm, %imm, %imm, %imm", ra, rs, rb, mb, me);
     rlwnm_.set_decoder(opcd=23,rc=1);
+    rlwnm_.set_cycles(1); 
 
     sc.set_asm("sc %imm", lev);
     sc.set_decoder(opcd=17);
+    sc.set_cycles(1); 
 
     slw.set_asm("slw %reg, %reg, %reg", ra, rs, rb);
     slw.set_decoder(opcd=31, xog=24, rc=0);
+    slw.set_cycles(1); 
 
     slw_.set_asm("slw. %reg, %reg, %reg", ra, rs, rb);
     slw_.set_decoder(opcd=31, xog=24, rc=1);
+    slw_.set_cycles(1); 
 
     sraw.set_asm("sraw %reg, %reg, %reg", ra, rs, rb);
     sraw.set_decoder(opcd=31, xog=792, rc=0);
+    sraw.set_cycles(1); 
 
     sraw_.set_asm("sraw. %reg, %reg, %reg", ra, rs, rb);
     sraw_.set_decoder(opcd=31, xog=792, rc=1);
+    sraw_.set_cycles(1); 
 
     srawi.set_asm("srawi %reg, %reg, %reg", ra, rs, sh);
     srawi.set_decoder(opcd=31, xog=824, rc=0);
+    srawi.set_cycles(1); 
 
     srawi_.set_asm("srawi. %reg, %reg, %reg", ra, rs, sh);
     srawi_.set_decoder(opcd=31, xog=824, rc=1);
+    srawi_.set_cycles(1); 
 
     srw.set_asm("srw %reg, %reg, %reg", ra, rs, rb);
     srw.set_decoder(opcd=31, xog=536, rc=0);
+    srw.set_cycles(1); 
 
     srw_.set_asm("srw. %reg, %reg, %reg", ra, rs, rb);
     srw_.set_decoder(opcd=31, xog=536, rc=1);
+    srw_.set_cycles(1); 
 
     stb.set_asm("stb %reg, %imm (%reg)", rs, d, ra);
     stb.set_asm("stb %reg, %exp@l(%reg)", rs, d, ra);
     stb.set_decoder(opcd=38);
+    stb.set_cycles(1); 
 
     stbu.set_asm("stbu %reg, %imm (%reg)", rs, d, ra);
     stbu.set_asm("stbu %reg, %exp@l(%reg)", rs, d, ra);
     stbu.set_decoder(opcd=39);
+    stbu.set_cycles(1); 
 
     stbux.set_asm("stbux %reg, %reg, %reg", rs, ra, rb);
     stbux.set_decoder(opcd=31, xog=247);
+    stbux.set_cycles(1); 
 
     stbx.set_asm("stbx %reg, %reg, %reg", rs, ra, rb);
     stbx.set_decoder(opcd=31, xog=215);
+    stbx.set_cycles(1); 
 
     sth.set_asm("sth %reg, %imm (%reg)", rs, d, ra);
     sth.set_asm("sth %reg, %exp@l(%reg)", rs, d, ra);
     sth.set_decoder(opcd=44);
+    sth.set_cycles(1); 
 
     sthbrx.set_asm("sthbrx %reg, %reg, %reg", rs, ra, rb);
     sthbrx.set_decoder(opcd=31, xog=918);
+    sthbrx.set_cycles(1); 
 
     sthu.set_asm("sthu %reg, %imm (%reg)", rs, d, ra);
     sthu.set_asm("sthu %reg, %exp@l(%reg)", rs, d, ra);
     sthu.set_decoder(opcd=45);
+    sthu.set_cycles(1); 
 
     sthux.set_asm("sthux %reg, %reg, %reg", rs, ra, rb);
     sthux.set_decoder(opcd=31, xog=439);
+    sthux.set_cycles(1); 
 
     sthx.set_asm("sthx %reg, %reg, %reg", rs, ra, rb);
     sthx.set_decoder(opcd=31, xog=407);
+    sthx.set_cycles(1); 
 
     stmw.set_asm("stmw %reg, %imm (%reg)", rs, d, ra);
     stmw.set_asm("stmw %reg, %exp@l(%reg)", rs, d, ra);
     stmw.set_decoder(opcd=47);
+    stmw.set_cycles(1); 
 
     stswi.set_asm("stswi %reg, %reg, %reg", rs, ra, nb);
     stswi.set_decoder(opcd=31, xog=725);
-
+   stswi.set_cycles(1); 
+    
     stswx.set_asm("stswx %reg, %reg, %reg", rs, ra, rb);
     stswx.set_decoder(opcd=31, xog=661);
-
+    stswx.set_cycles(1); 
+   
     stw.set_asm("stw %reg, %imm (%reg)", rs, d, ra);
     stw.set_asm("stw %reg, %exp@l(%reg)", rs, d, ra);
     stw.set_decoder(opcd=36);
-
+    stw.set_cycles(1); 
+    
     stwbrx.set_asm("stwbrx %reg, %reg, %reg", rs, ra, rb);
     stwbrx.set_decoder(opcd=31, xog=662);
-
+    stwbrx.set_cycles(1); 
+   
     stwu.set_asm("stwu %reg, %imm (%reg)", rs, d, ra);
     stwu.set_asm("stwu %reg, %imm (%reg)", rs, d, ra);
     stwu.set_decoder(opcd=37);
+    stwu.set_cycles(1); 
 
     stwux.set_asm("stwux %reg, %reg, %reg", rs, ra, rb);
     stwux.set_decoder(opcd=31, xog=183);
+    stwux.set_cycles(1); 
 
     stwx.set_asm("stwx %reg, %reg, %reg", rs, ra, rb);
     stwx.set_decoder(opcd=31, xog=151);
+    stwx.set_cycles(1); 
 
     subf.set_asm("subf %reg, %reg, %reg", rt, ra, rb);
     subf.set_decoder(opcd=31, oe=0, xos=40, rc=0);
+    subf.set_cycles(1); 
 
     subf_.set_asm("subf. %reg, %reg, %reg", rt, ra, rb);
     subf_.set_decoder(opcd=31, oe=0, xos=40, rc=1);
+    subf_.set_cycles(1); 
 
     subfo.set_asm("subfo %reg, %reg, %reg", rt, ra, rb);
     subfo.set_decoder(opcd=31, oe=1, xos=40, rc=0);
+    subfo.set_cycles(1); 
 
     subfo_.set_asm("subfo. %reg, %reg, %reg", rt, ra, rb);
     subfo_.set_decoder(opcd=31, oe=1, xos=40, rc=1);
+    subfo_.set_cycles(1);
 
     subfc.set_asm("subfc %reg, %reg, %reg", rt, ra, rb);
     subfc.set_decoder(opcd=31, oe=0, xos=8, rc=0);
+    subfc.set_cycles(1);
 
     subfc_.set_asm("subfc. %reg, %reg, %reg", rt, ra, rb);
     subfc_.set_decoder(opcd=31, oe=0, xos=8, rc=1);
+    subfc_.set_cycles(1);
 
     subfco.set_asm("subfco %reg, %reg, %reg", rt, ra, rb);
     subfco.set_decoder(opcd=31, oe=1, xos=8, rc=0);
+    subfco.set_cycles(1);
 
     subfco_.set_asm("subfco. %reg, %reg, %reg", rt, ra, rb);
     subfco_.set_decoder(opcd=31, oe=1, xos=8, rc=1);
-
+   subfco_.set_cycles(1);
+ 
     subfe.set_asm("subfe %reg, %reg, %reg", rt, ra, rb);
     subfe.set_decoder(opcd=31, oe=0, xos=136, rc=0);
+    subfe.set_cycles(1);
 
     subfe_.set_asm("subfe. %reg, %reg, %reg", rt, ra, rb);
     subfe_.set_decoder(opcd=31, oe=0, xos=136, rc=1);
+    subfe_.set_cycles(1);
 
     subfeo.set_asm("subfeo %reg, %reg, %reg", rt, ra, rb);
     subfeo.set_decoder(opcd=31, oe=1, xos=136, rc=0);
+    subfeo.set_cycles(1);
 
     subfeo_.set_asm("subfeo. %reg, %reg, %reg", rt, ra, rb);
     subfeo_.set_decoder(opcd=31, oe=1, xos=136, rc=1);
+    subfeo_.set_cycles(1);
 
     subfic.set_asm("subfic %reg, %reg, %exp", rt, ra, d);
     subfic.set_decoder(opcd=8);
+   subfic.set_cycles(1);
 
     subfme.set_asm("subfme %reg, %reg", rt, ra);
     subfme.set_decoder(opcd=31, oe=0, xos=232, rc=0);
+    subfme.set_cycles(1);
+
 
     subfme_.set_asm("subfme. %reg, %reg", rt, ra);
     subfme_.set_decoder(opcd=31, oe=0, xos=232, rc=1);
+    subfme_.set_cycles(1);
 
     subfmeo.set_asm("subfmeo %reg, %reg", rt, ra);
     subfmeo.set_decoder(opcd=31, oe=1, xos=232, rc=0);
+    subfmeo.set_cycles(1);
 
     subfmeo_.set_asm("subfmeo. %reg, %reg", rt, ra);
     subfmeo_.set_decoder(opcd=31, oe=1, xos=232, rc=1);
+    subfmeo_.set_cycles(1);
 
     subfze.set_asm("subfze %reg, %reg", rt, ra);
     subfze.set_decoder(opcd=31, oe=0, xos=200, rc=0);
+    subfze.set_cycles(1);
 
     subfze_.set_asm("subfze. %reg, %reg", rt, ra);
     subfze_.set_decoder(opcd=31, oe=0, xos=200, rc=1);
+    subfze_.set_cycles(1);
 
     subfzeo.set_asm("subfzeo %reg, %reg", rt, ra);
     subfzeo.set_decoder(opcd=31, oe=1, xos=200, rc=0);
+    subfzeo.set_cycles(1);
 
-    subfzeo_.set_asm("subfzeo. %reg, %reg", rt, ra);
     subfzeo_.set_decoder(opcd=31, oe=1, xos=200, rc=1);
+    subfzeo_.set_asm("subfzeo. %reg, %reg", rt, ra);
+    subfzeo_.set_cycles(1);
 
     xxor.set_asm("xor %reg, %reg, %reg", ra, rs, rb);
     xxor.set_decoder(opcd=31, xog=316, rc=0);
+    xxor.set_cycles(1);
 
     xxor_.set_asm("xor. %reg, %reg, %reg", ra, rs, rb);
     xxor_.set_decoder(opcd=31, xog=316, rc=1);
+    xxor_.set_cycles(1);
 
     xori.set_asm("xori %reg, %reg, %imm", ra, rs, ui);
     xori.set_decoder(opcd=26);
+    xori.set_cycles(1);
 
     xoris.set_asm("xoris %reg, %reg, %imm", ra, rs, ui);
     xoris.set_decoder(opcd=27);
-
+    xoris.set_cycles(1);
 
 
 /*******************************************************/
@@ -1045,7 +1205,7 @@ AC_ISA(powerpc) {
     bclr.cond(test_Branch_Cond(CR,CTR,bo,bi));
 
     bclrl.is_branch(LR.read() & 0xFFFFFFFC);
-                bclrl.cond(test_Branch_Cond(CR,CTR,bo,bi));
+    bclrl.cond(test_Branch_Cond(CR,CTR,bo,bi));
     bclrl.behavior(LR.write(ac_pc+4););
 
 
