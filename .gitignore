@@ -21,6 +21,6 @@ powerpc_syscall.H
 powerpc_syscall.H.tmpl
 powerpc_ih_bhv_macros.H
 powerpc_intr_handlers.H
-
+powerpc_intr_handlers.cpp*
 
 
