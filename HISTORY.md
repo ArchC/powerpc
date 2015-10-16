@@ -1,4 +1,12 @@
-## Future
+## 2.4.0
+
+* Revision numbers following the ArchC release
+* Instructions with cycles annotations
+* Two new .ac files to use with MPSoCBench (block and nonblock)
+* powerpc_isa.cpp using the reserved work DATA_PORT to data request. See the [commit message](https://github.com/ArchC/powerpc/commit/18be8f932ee67c61795a331aa4682c866c864358).
+* Interrupt handler support. It is inactive in standalone simulator.
+
+[Full changelog](https://github.com/ArchC/powerpc/compare/v2.3.0...v2.4.0)
 
 ## 2.3.0
 * Revision numbers following the ArchC release
