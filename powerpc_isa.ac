@@ -1181,12 +1181,12 @@ AC_ISA(powerpc) {
     xoris.set_decoder(opcd=27);
     xoris.set_cycles(1);
 
-    tw.set_asm("tw%[cond] %reg, %reg", to, ra, rb);
+    tw.set_asm("tw%[trapcond] %reg, %reg", to, ra, rb);
     tw.set_asm("trap", to=31, ra=0, rb=0);
     tw.set_decoder(opcd=31, xog=4);
     tw.set_cycles(1);
 
-    twi.set_asm("tw%[cond]i %reg, %imm", to, ra, si);
+    twi.set_asm("tw%[trapcond]i %reg, %imm", to, ra, si);
     twi.set_decoder(opcd=3);
     twi.set_cycles(1);
 
