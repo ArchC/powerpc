@@ -203,6 +203,20 @@ AC_ISA(powerpc) {
     ""[0..31] = [0..31];           
   }
 
+  ac_asm_map trapcond {
+    "lt"         = 16;
+    "le", "ne"   = 20;
+    "eq"         = 4;
+    "ge", "nl"   = 12;
+    "ne"         = 24;
+    "gt"         = 8;
+    "llt"        = 2;
+    "lle", "lng" = 6;
+    "lge", "lnl" = 5;
+    "lgt"        = 1;
+    ""           = 31;
+  }
+
 
   ISA_CTOR(powerpc) {
 
@@ -1166,6 +1180,15 @@ AC_ISA(powerpc) {
     xoris.set_asm("xoris %reg, %reg, %imm", ra, rs, ui);
     xoris.set_decoder(opcd=27);
     xoris.set_cycles(1);
+
+    tw.set_asm("tw%[cond] %reg, %reg", to, ra, rb);
+    tw.set_asm("trap", to=31, ra=0, rb=0);
+    tw.set_decoder(opcd=31, xog=4);
+    tw.set_cycles(1);
+
+    twi.set_asm("tw%[cond]i %reg, %imm", to, ra, si);
+    twi.set_decoder(opcd=3);
+    twi.set_cycles(1);
 
 
 /*******************************************************/
