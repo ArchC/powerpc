@@ -159,6 +159,11 @@ AC_ISA(powerpc) {
                 divwou, divwou_, subf, subf_, subfo, subfo_, subfc,
                 subfc_, subfco, subfco_, subfe, subfe_, subfeo,
                 subfeo_;
+
+  ac_instr<D7> twi;
+
+  ac_instr<X21> tw;
+
 /*
 
       macchw, macchw_, macchwo, macchwo_,
