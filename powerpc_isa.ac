@@ -399,7 +399,7 @@ AC_ISA(powerpc) {
     
     cmp.set_asm("cmpw %imm, %imm, %imm", bf, ra, rb, l=0);
     cmp.set_asm("cmp %imm, %imm, %reg, %reg", bf, l, ra, rb);
-    cmp.set_decoder(opcd=31, l=0, xog=0);
+    cmp.set_decoder(opcd=31, xog=0);
     cmp.set_cycles(1); 
     
     cmpi.set_asm("cmpwi %imm, %reg, %imm", bf, ra, si, l=0);
