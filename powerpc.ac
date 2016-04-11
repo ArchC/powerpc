@@ -47,7 +47,6 @@ AC_ARCH(powerpc) {
         ac_reg id;
 	ARCH_CTOR(powerpc) {	
 		ac_isa("powerpc_isa.ac");
-        ac_gdb("powerpc.xml");
 		set_endian("big");
 	};
 
