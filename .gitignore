@@ -17,8 +17,8 @@ powerpc_isa.H
 powerpc_isa.cpp.tmpl
 powerpc_isa_init.cpp
 powerpc_parms.H
-powerpc_syscall.H
 powerpc_syscall.H.tmpl
+powerpc_syscall.cpp.tmpl
 powerpc_ih_bhv_macros.H
 powerpc_intr_handlers.H
 powerpc_intr_handlers.cpp*
