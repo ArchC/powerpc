@@ -11,7 +11,6 @@
  * IC-UNICAMP                                         *
  * http://www.lsc.ic.unicamp.br                       *
  ******************************************************/
- 
 
 #ifndef POWERPC_SYSCALL_H
 #define POWERPC_SYSCALL_H
@@ -21,17 +20,21 @@
 #include "powerpc_parms.H"
 #include "ac_syscall.H"
 
-//powerpc system calls
-class powerpc_syscall : public ac_syscall<powerpc_parms::ac_word, powerpc_parms::ac_Hword>, public powerpc_arch_ref
-{
+// powerpc system calls
+class powerpc_syscall
+    : public ac_syscall<powerpc_parms::ac_word, powerpc_parms::ac_Hword>,
+      public powerpc_arch_ref {
 public:
-  powerpc_syscall(powerpc_arch& ref) : ac_syscall<powerpc_parms::ac_word, powerpc_parms::ac_Hword>(ref, powerpc_parms::AC_RAMSIZE), powerpc_arch_ref(ref) {};
-  virtual ~powerpc_syscall() {};
+  powerpc_syscall(powerpc_arch &ref)
+      : ac_syscall<powerpc_parms::ac_word, powerpc_parms::ac_Hword>(
+            ref, powerpc_parms::AC_RAMSIZE),
+        powerpc_arch_ref(ref){};
+  virtual ~powerpc_syscall(){};
 
-  void get_buffer(int argn, unsigned char* buf, unsigned int size);
-  void set_buffer(int argn, unsigned char* buf, unsigned int size);
-  void set_buffer_noinvert(int argn, unsigned char* buf, unsigned int size);
-  int  get_int(int argn);
+  void get_buffer(int argn, unsigned char *buf, unsigned int size);
+  void set_buffer(int argn, unsigned char *buf, unsigned int size);
+  void set_buffer_noinvert(int argn, unsigned char *buf, unsigned int size);
+  int get_int(int argn);
   void set_int(int argn, int val);
   void return_from_syscall();
   void set_prog_args(int argc, char **argv);
