@@ -362,7 +362,7 @@ inline int ceil(int value, int divisor) {
 inline unsigned int rotl(unsigned int reg,unsigned int n) {
   unsigned int tmp1=reg;
   unsigned int tmp2=reg;
-  unsigned int rotated=(tmp1 << n) | (tmp2 >> 32-n);
+  unsigned int rotated=(tmp1 << n) | (tmp2 >> (32-n));
  
   return(rotated);
 }
