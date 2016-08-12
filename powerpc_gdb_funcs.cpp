@@ -114,11 +114,11 @@ void powerpc::reg_write( int reg, ac_word value ) {
 
 
 unsigned char powerpc::mem_read( unsigned int address ) {
-  return IM->read_byte( address );
+  return DATA_PORT->read_byte( address );
 }
 
 
 void powerpc::mem_write( unsigned int address, unsigned char byte ) {
-  IM->write_byte( address, byte );
+  DATA_PORT->write_byte( address, byte );
 }
 
